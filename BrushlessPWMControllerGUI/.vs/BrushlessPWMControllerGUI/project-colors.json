@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "4411455d-d4ac-40cc-90a8-00dcb1d50ecf": {
+      "ProjectGuid": "4411455d-d4ac-40cc-90a8-00dcb1d50ecf",
+      "DisplayName": "BrushlessPWMControllerGUI",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}

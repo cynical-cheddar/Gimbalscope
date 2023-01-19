@@ -1,0 +1,11 @@
+D:\Dissertation Code\BrushlessPWMControllerGUI\BrushlessPWMControllerGUI\bin\Debug\BrushlessPWMControllerGUI.exe.config
+D:\Dissertation Code\BrushlessPWMControllerGUI\BrushlessPWMControllerGUI\bin\Debug\BrushlessPWMControllerGUI.exe
+D:\Dissertation Code\BrushlessPWMControllerGUI\BrushlessPWMControllerGUI\bin\Debug\BrushlessPWMControllerGUI.pdb
+D:\Dissertation Code\BrushlessPWMControllerGUI\BrushlessPWMControllerGUI\obj\Debug\BrushlessPWMControllerGUI.csproj.AssemblyReference.cache
+D:\Dissertation Code\BrushlessPWMControllerGUI\BrushlessPWMControllerGUI\obj\Debug\BrushlessPWMControllerGUI.csproj.SuggestedBindingRedirects.cache
+D:\Dissertation Code\BrushlessPWMControllerGUI\BrushlessPWMControllerGUI\obj\Debug\BrushlessPWMControllerGUI.Form1.resources
+D:\Dissertation Code\BrushlessPWMControllerGUI\BrushlessPWMControllerGUI\obj\Debug\BrushlessPWMControllerGUI.Properties.Resources.resources
+D:\Dissertation Code\BrushlessPWMControllerGUI\BrushlessPWMControllerGUI\obj\Debug\BrushlessPWMControllerGUI.csproj.GenerateResource.cache
+D:\Dissertation Code\BrushlessPWMControllerGUI\BrushlessPWMControllerGUI\obj\Debug\BrushlessPWMControllerGUI.csproj.CoreCompileInputs.cache
+D:\Dissertation Code\BrushlessPWMControllerGUI\BrushlessPWMControllerGUI\obj\Debug\BrushlessPWMControllerGUI.exe
+D:\Dissertation Code\BrushlessPWMControllerGUI\BrushlessPWMControllerGUI\obj\Debug\BrushlessPWMControllerGUI.pdb
