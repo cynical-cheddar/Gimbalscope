@@ -131,19 +131,20 @@ void loop() {
     long posChangeLeft = currentLeftEncoderCount - lastLeftEncoderCount;
     motorController_left.UpdateLoop(currentLeftEncoderCount, posChangeLeft);
     lastLeftEncoderCount = currentLeftEncoderCount;
+    motorController_left.SetTargetRPM(180.0f);
     posChangeLeft = 0;
 
     long currentRightEncoderCount = rightEncoder.getEncoderCount();
     long posChangeRight = currentRightEncoderCount - lastRightEncoderCount;
     motorController_right.UpdateLoop(currentRightEncoderCount, posChangeRight);
     // test sync, reduce motor speed for one of the motors
-    motorController_right.baseMotorPower = 40.0f;
     lastRightEncoderCount = currentRightEncoderCount;
+    motorController_right.SetTargetRPM(180.0f);
     posChangeRight = 0;
 
     // we should now wait for both motors to be nearly equal for sync
 
-    if(abs( motorController_right.currentDegrees - motorController_right.targetRotation) < 1.2 && abs( motorController_left.currentDegrees - motorController_left.targetRotation) < 1.2){
+    if(abs( motorController_right.currentDegrees - motorController_right.targetRotation) < 1 && abs( motorController_left.currentDegrees - motorController_left.targetRotation) < 1){
        motorController_right.targetRotation = -motorController_right.targetRotation;
        motorController_left.targetRotation = -motorController_left.targetRotation;
     }
