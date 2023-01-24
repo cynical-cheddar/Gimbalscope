@@ -143,9 +143,6 @@ void loop() {
     posChangeRight = 0;
 
     // we should now wait for both motors to be nearly equal for sync
-    // we want to allow overshooting on the fast outwards jolt, but not allow it for resetting movement to origin.
-    motorController_left.SetAllowOvershooting(true);
-    motorController_right.SetAllowOvershooting(true);
 
     if(abs( motorController_right.currentDegrees - motorController_right.targetRotation) < 1 && abs( motorController_left.currentDegrees - motorController_left.targetRotation) < 1){
        motorController_right.targetRotation = -motorController_right.targetRotation;

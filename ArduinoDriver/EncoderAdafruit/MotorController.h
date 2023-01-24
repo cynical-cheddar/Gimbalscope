@@ -11,15 +11,9 @@ class MotorController_c {
 
     
   public:
-
-    bool doneMovement = false;
-  
     #define RPM_SAMPLES 20
     float GEARING     = 100;
     float ENCODERMULT = 28;
-
-    bool allowOvershooting_forward = false;
-    bool allowOvershooting_backward = false;
 
     float currentDegrees = 0.0f;
 
@@ -77,24 +71,6 @@ class MotorController_c {
       SetUpRpmPolls();
     }
 
-    // method compares current orientation with target orientation.
-    // 
-    void SetAllowOvershooting(bool allow){
-      allowOvershooting_forward = false;
-      allowOvershooting_backward = false;
-
-      if(allow){
-        // compare current degrees with target degrees
-        // if current degrees < target degrees
-        if(currentDegrees < targetRotation){
-          allowOvershooting_forward = true;
-        }
-        else{
-          allowOvershooting_backward = true;
-        }
-      }
-    }
-
     
 
     void SetTargetRPM(float newRPM){
@@ -142,9 +118,9 @@ class MotorController_c {
         }
         
         currentDegrees = deg;
-        Serial.println(currentDegrees);
+        //Serial.println(currentDegrees);
         //Serial.println(targetRotation);
-        //Serial.println(RPM_degrees_current);
+        Serial.println(RPM_degrees_current);
         
         BangBangControl();
         int cumPosDifference = cumPos - lastCumPos;
@@ -171,27 +147,42 @@ class MotorController_c {
 
       motor->setSpeed(currentMotorPower);
     }
-   
-    void SetMotorToStationary(){;
-       motor->setSpeed(0);
-       stationary = true;
-       SetUpRpmPolls();
+
+    void SetPWM(int desiredPWM){
+      //esc.write(desiredPWM);
+      if(desiredPWM == 90){
+        motor->setSpeed(0);
+      }
+      if(desiredPWM < 90){
+        int pwm = map(desiredPWM, 0, 90, 255, 30);
+        motor->run(BACKWARD);
+        motor->setSpeed(pwm);
+        
+        //Serial.println("moving down");
+      }
+      else if(desiredPWM > 90){
+        int pwm = map(desiredPWM, 90, 180, 30, 255);
+        
+        motor->run(FORWARD);
+        motor->setSpeed(pwm);
+        
+        //Serial.println("moving up");
+      }
+      
+      currentPWM = desiredPWM;
     }
+
     
+
     void BangBangControl(){
       
         // get current rotation in degrees.
       //Serial.println(currentDegrees);
-
-      if(allowOvershooting_backward && currentDegrees < targetRotation){
-        SetMotorToStationary();
-      }
-      else if (allowOvershooting_forward && currentDegrees > targetRotation){
-        SetMotorToStationary();
-      }
-      
       if(abs(targetRotation-currentDegrees) < 1){
-        SetMotorToStationary();
+          //SetPWM(90);
+          motor->setSpeed(0);
+          stationary = true;
+          SetUpRpmPolls();
       }
       // if target is larger than current, pwm >90
       // if current pwm < 90, do sweep function from 80 to 100, then set pwm to desired >100
