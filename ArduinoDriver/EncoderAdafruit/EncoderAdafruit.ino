@@ -15,22 +15,40 @@ volatile uint32_t lastA = 0;
 Encoders leftEncoder(18,19);
 Encoders rightEncoder(2,3);
 
-float targetRotation = 999.0f;
+float targetRotation = 90.0f;
 
 int pos = 0;
 
 int currentPWM = 90;
 
+long lastLeftEncoderCount = 0;
+long lastRightEncoderCount = 0;
 
+
+int servoAAAA = 0;
 
 long positionLeft  = -999;
 
 MotorController_c motorController_left;
 MotorController_c motorController_right;
 
+
+
+// DEFINE STATE MACHINE STATES:
+#define STATE_SETUP  0
+#define STATE_LOOPING_DEMO_MASTER 1
+#define STATE_LOOPING_DEMO_FIRE_COMMAND  2
+#define STATE_LOOPING_DEMO_FIRE_LOOP  3
+#define STATE_LOOPING_DEMO_RELOAD_COMMAND  4
+#define STATE_LOOPING_DEMO_RELOAD_LOOP  5
+#define STATE_REST  6
+int STATE = 0;
+
+
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 
 void setup() {
+  STATE = STATE_SETUP;
   Serial.begin(9600);           // set up Serial library at 9600 bps
   Serial.println("begin...");
   servo1.attach(10);
@@ -45,15 +63,19 @@ void setup() {
   motorController_left.SetUpMotorShield();
   Serial.println("done left b");
   motorController_left.SetUpMotor(1);
-
+  motorController_left.targetRotation = targetRotation;
+  
   Serial.println("done right a");
   motorController_right.AFMS = AFMS;
   motorController_right.SetUpMotorShield();
   Serial.println("done right b");
   motorController_right.SetUpMotor(2);
+  motorController_left.targetRotation = targetRotation;
 
 
   Serial.println("Begun");
+
+  STATE = STATE_LOOPING_DEMO_MASTER;
 
 }
 
@@ -111,11 +133,7 @@ void SerialDecoder(){
 
 
 
-long lastLeftEncoderCount = 0;
-long lastRightEncoderCount = 0;
 
-
-int servoAAAA = 0;
 void loop() {
     //if(Serial.available()){
       //SerialDecoder();
@@ -127,11 +145,11 @@ void loop() {
     //Serial.println("serialAvailable");
     digitalWrite(LED_BUILTIN, LOW);
 
+    // UPDATE LOOP FOR MOTOR DRIVERS
     long currentLeftEncoderCount = leftEncoder.getEncoderCount();
     long posChangeLeft = currentLeftEncoderCount - lastLeftEncoderCount;
     motorController_left.UpdateLoop(currentLeftEncoderCount, posChangeLeft);
     lastLeftEncoderCount = currentLeftEncoderCount;
-    motorController_left.SetTargetRPM(180.0f);
     posChangeLeft = 0;
 
     long currentRightEncoderCount = rightEncoder.getEncoderCount();
@@ -139,15 +157,43 @@ void loop() {
     motorController_right.UpdateLoop(currentRightEncoderCount, posChangeRight);
     // test sync, reduce motor speed for one of the motors
     lastRightEncoderCount = currentRightEncoderCount;
-    motorController_right.SetTargetRPM(180.0f);
     posChangeRight = 0;
+    // END UPDATE LOOP FOR MOTOR DRIVERS
 
-    // we should now wait for both motors to be nearly equal for sync
-
-    if(abs( motorController_right.currentDegrees - motorController_right.targetRotation) < 1 && abs( motorController_left.currentDegrees - motorController_left.targetRotation) < 1){
-       motorController_right.targetRotation = -motorController_right.targetRotation;
-       motorController_left.targetRotation = -motorController_left.targetRotation;
+    if(STATE == STATE_LOOPING_DEMO_MASTER){
+      STATE = STATE_LOOPING_DEMO_FIRE_COMMAND;
     }
+
+    // ====== DEMO LOOP FIRE STATES ========//
+    if(STATE == STATE_LOOPING_DEMO_FIRE_COMMAND){
+      // (target angle, degrees per second, precision)
+      motorController_right.ReceiveCommand(-60.0f, 360.0f, 3.0f);
+      motorController_left.ReceiveCommand(60.0f, 360.0f, 3.0f);
+      STATE = STATE_LOOPING_DEMO_FIRE_LOOP;
+    }
+    if(STATE == STATE_LOOPING_DEMO_FIRE_LOOP){
+      if(motorController_right.doneCommand && motorController_left.doneCommand){
+        Serial.println("STATE CHANGE TO STATE_LOOPING_DEMO_RELOAD");
+        STATE = STATE_LOOPING_DEMO_RELOAD_COMMAND;
+      }
+    }
+    
+    // ====== DEMO LOOP RELOAD STATES ========//
+    if(STATE == STATE_LOOPING_DEMO_RELOAD_COMMAND){
+      // (target angle, degrees per second, precision)
+      motorController_right.ReceiveCommand(0.0f, 35.0f, 0.5f);
+      motorController_left.ReceiveCommand(0.0f, 35.0f, 0.5f);
+      STATE = STATE_LOOPING_DEMO_RELOAD_LOOP;
+    }
+    if(STATE == STATE_LOOPING_DEMO_RELOAD_LOOP){
+      if(motorController_right.doneCommand && motorController_left.doneCommand){
+        Serial.println("STATE CHANGE TO STATE_LOOPING_DEMO_MASTER");
+        STATE = STATE_LOOPING_DEMO_MASTER;
+      }
+    }
+
+
+
 
 
 

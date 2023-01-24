@@ -11,15 +11,19 @@ class MotorController_c {
 
     
   public:
+
+  
     #define RPM_SAMPLES 20
     float GEARING     = 100;
     float ENCODERMULT = 28;
 
+    bool doneCommand = false;
+    float precision_degrees = 2.0f;
+
     float currentDegrees = 0.0f;
 
-    float targetRotation = 180.0f;
+    float targetRotation = 90.0f;
 
-    float currentPWM = 0;
 
     int lastCumPos = 0;
 
@@ -39,8 +43,9 @@ class MotorController_c {
     // sample for current RPM degrees:
     float RPM_current_polls[RPM_SAMPLES];
     int RPM_poll_index = 0;
+    
 
-    float PI_Gain = 0.3f;
+    float PI_Gain = 0.2f;
     
     bool stationary = false;
     int motorNumber = 0;
@@ -50,6 +55,15 @@ class MotorController_c {
     MotorController_c() {
         
     } 
+
+
+
+    void ReceiveCommand(float targetRot, float targetRPM, float precision){
+      SetTargetRotation(targetRot);
+      SetTargetRPM(targetRPM);
+      precision_degrees = precision;
+      doneCommand = false;
+    }
 
     void SetUpMotorShield(){
       Serial.println("AFMS begin?");
@@ -71,12 +85,13 @@ class MotorController_c {
       SetUpRpmPolls();
     }
 
+
     
 
     void SetTargetRPM(float newRPM){
       RPM_degrees_target = newRPM;
       // set current power via heuristic:
-      currentMotorPower = map(newRPM ,0, 720, 40, 360);
+      currentMotorPower = map(newRPM ,0, 580, 22, 255);
     }
 
     void SetTargetRotation(float newRotation){
@@ -120,7 +135,7 @@ class MotorController_c {
         currentDegrees = deg;
         //Serial.println(currentDegrees);
         //Serial.println(targetRotation);
-        Serial.println(RPM_degrees_current);
+        //Serial.println(RPM_degrees_current);
         
         BangBangControl();
         int cumPosDifference = cumPos - lastCumPos;
@@ -147,47 +162,26 @@ class MotorController_c {
 
       motor->setSpeed(currentMotorPower);
     }
-
-    void SetPWM(int desiredPWM){
-      //esc.write(desiredPWM);
-      if(desiredPWM == 90){
-        motor->setSpeed(0);
-      }
-      if(desiredPWM < 90){
-        int pwm = map(desiredPWM, 0, 90, 255, 30);
-        motor->run(BACKWARD);
-        motor->setSpeed(pwm);
-        
-        //Serial.println("moving down");
-      }
-      else if(desiredPWM > 90){
-        int pwm = map(desiredPWM, 90, 180, 30, 255);
-        
-        motor->run(FORWARD);
-        motor->setSpeed(pwm);
-        
-        //Serial.println("moving up");
-      }
-      
-      currentPWM = desiredPWM;
+   
+    void SetMotorToStationary(){;
+       motor->setSpeed(0);
+       stationary = true;
+       SetUpRpmPolls();
     }
-
     
-
     void BangBangControl(){
       
         // get current rotation in degrees.
       //Serial.println(currentDegrees);
-      if(abs(targetRotation-currentDegrees) < 1){
-          //SetPWM(90);
-          motor->setSpeed(0);
-          stationary = true;
-          SetUpRpmPolls();
+      
+      if(abs(targetRotation-currentDegrees) < precision_degrees){
+        SetMotorToStationary();
+        doneCommand = true;
       }
       // if target is larger than current, pwm >90
       // if current pwm < 90, do sweep function from 80 to 100, then set pwm to desired >100
       // else set pwm to desired
-     else if(targetRotation > currentDegrees && abs(targetRotation-currentDegrees) > 1){
+     else if(targetRotation > currentDegrees && abs(targetRotation-currentDegrees) > precision_degrees){
         //  if(currentPWM <= 90){
         //      SweepLowToHigh();
         //  }
@@ -202,7 +196,7 @@ class MotorController_c {
      }
       // if target is smaller than current, pwm < 90
       // if current pwm > 90, do sweep function from 100 to 80, then set pwm to desired <80
-     else if(targetRotation < currentDegrees && abs(targetRotation-currentDegrees) > 1){
+     else if(targetRotation < currentDegrees && abs(targetRotation-currentDegrees) > precision_degrees){
           //if(currentPWM >= 90){
           //    SweepHighToLow();
           //}
