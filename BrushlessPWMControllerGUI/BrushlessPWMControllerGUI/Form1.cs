@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO.Ports;
 
 namespace BrushlessPWMControllerGUI
 {
@@ -15,7 +16,33 @@ namespace BrushlessPWMControllerGUI
         public Form1()
         {
             InitializeComponent();
+            serialPort1.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
             serialPort1.Open();
+
+        }
+
+        private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            SerialPort sp = (SerialPort)sender;
+
+            string indata = sp.ReadLine();
+
+            System.Diagnostics.Debug.WriteLine(indata);
+            
+
+            
+            /*string indata = sp.ReadExisting();
+            if (indata.Contains('\n'))
+            {
+                System.Diagnostics.Debug.Write(indata);
+                System.Diagnostics.Debug.Write("\n");
+            }
+            else
+            {
+                System.Diagnostics.Debug.Write(indata);
+            }*/
+            
+
 
         }
 
@@ -128,6 +155,83 @@ namespace BrushlessPWMControllerGUI
         private void targetRotationTextBox1_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label10_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btn_fire_command_Click(object sender, EventArgs e)
+        {
+            byte motorType = 0;
+            byte motorID = 0;
+            byte functionID = 0;
+            byte endChar = 47; // '/'
+
+            float fireTargetAngle = Single.Parse(txt_target_orientation.Text);
+            byte[] bytes_fireTargetAngle = BitConverter.GetBytes(fireTargetAngle);
+            float fireDegreesPerSecond = Single.Parse(txt_fire_speed.Text);
+            byte[] bytes_fireDegreesPerSecond = BitConverter.GetBytes(fireDegreesPerSecond);
+            byte firePrecision = 3;
+
+            float reloadTargetAngle = 0;
+            byte[] bytes_reloadTargetAngle = BitConverter.GetBytes(reloadTargetAngle);
+            float reloadDegreesPerSecond = Single.Parse(txt_reload_speed.Text);
+            byte[] bytes_reloadDegreesPerSecond = BitConverter.GetBytes(reloadDegreesPerSecond);
+            byte reloadPrecision = 1;
+            
+
+
+
+            byte[] buf = new byte[] { motorType, motorID, functionID, bytes_fireTargetAngle[0], bytes_fireTargetAngle[1],
+                bytes_fireTargetAngle[2], bytes_fireTargetAngle[3], bytes_fireDegreesPerSecond[0], bytes_fireDegreesPerSecond[1],
+                bytes_fireDegreesPerSecond[2], bytes_fireDegreesPerSecond[3], firePrecision, bytes_reloadTargetAngle[0], bytes_reloadTargetAngle[1],
+                bytes_reloadTargetAngle[2], bytes_reloadTargetAngle[3], bytes_reloadDegreesPerSecond[0], bytes_reloadDegreesPerSecond[1],
+                bytes_reloadDegreesPerSecond[2], bytes_reloadDegreesPerSecond[3], reloadPrecision, endChar };
+
+            System.Diagnostics.Debug.WriteLine("--btn_fire_command_Click--");
+
+            serialPort1.Write(buf, 0, 22);
+            
+            
+        }
+
+        private void textBox7_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btn_read_Click(object sender, EventArgs e)
+        {
+            String portContents = (serialPort1.ReadLine());
+            textBox7.Text = portContents;
+            System.Diagnostics.Debug.WriteLine(portContents);
+        }
+
+        private void btn_send_garbage_byte_Click(object sender, EventArgs e)
+        {
+            byte[] garbageByte = new byte[] { 1 };
+            serialPort1.Write(garbageByte, 0, 1);
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            // POLLING METHDOD
+
+            //String portContents = (serialPort1.ReadLine());
+            //textBox7.Text = portContents;
+            //System.Diagnostics.Debug.WriteLine(portContents);
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+           // timer1.Start();
         }
     }
 }

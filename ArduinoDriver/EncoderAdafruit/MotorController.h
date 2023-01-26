@@ -12,13 +12,13 @@ class MotorController_c {
     
   public:
 
-  
+    bool serialDebug = false;
     #define RPM_SAMPLES 20
     float GEARING     = 100;
     float ENCODERMULT = 28;
 
     bool doneCommand = false;
-    float precision_degrees = 2.0f;
+    byte precision_degrees = 1;
 
     float currentDegrees = 0.0f;
 
@@ -58,7 +58,7 @@ class MotorController_c {
 
 
 
-    void ReceiveCommand(float targetRot, float targetRPM, float precision){
+    void ReceiveCommand(float targetRot, float targetRPM, byte precision){
       SetTargetRotation(targetRot);
       SetTargetRPM(targetRPM);
       precision_degrees = precision;
@@ -66,9 +66,9 @@ class MotorController_c {
     }
 
     void SetUpMotorShield(){
-      Serial.println("AFMS begin?");
+      if(serialDebug)Serial.println("AFMS begin?");
       AFMS.begin();
-      Serial.println("AFMS begun");
+      if(serialDebug)Serial.println("AFMS begun");
     }
 
     void SetUpRpmPolls(){
@@ -80,8 +80,8 @@ class MotorController_c {
     void SetUpMotor(int motorNumberLocal){
       motorNumber = motorNumberLocal;
       motor = AFMS.getMotor(motorNumber);
-      Serial.println("Motor set up");
-      Serial.println(motorNumber);
+      if(serialDebug)Serial.println("Motor set up");
+      if(serialDebug)Serial.println(motorNumber);
       SetUpRpmPolls();
     }
 

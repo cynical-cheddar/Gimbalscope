@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-#define MAX_NUM_ENCODERS 4
+#define MAX_NUM_ENCODERS 2
 
 class Encoders{
   public:  

@@ -4,7 +4,7 @@
 
 // initialize all instance of encoder to null.
 
-Encoders *Encoders::_instances[MAX_NUM_ENCODERS] = {NULL, NULL,NULL, NULL};
+Encoders *Encoders::_instances[MAX_NUM_ENCODERS] = {NULL, NULL};
 uint8_t Encoders::_whichEncoder = 0;
 Encoders::Encoders(byte pinA, byte pinB){
    _encoderPINA = pinA;

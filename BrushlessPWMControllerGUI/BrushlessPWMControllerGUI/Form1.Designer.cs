@@ -59,6 +59,23 @@
             this.targetRotationTextBox1 = new System.Windows.Forms.TextBox();
             this.targetRotationCommandBox = new System.Windows.Forms.TextBox();
             this.btnTargetRotationCommand = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.btn_fire_command = new System.Windows.Forms.Button();
+            this.separator = new System.Windows.Forms.Label();
+            this.txt_target_orientation = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.txt_fire_speed = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.txt_reload_speed = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.txt_fire_precision = new System.Windows.Forms.TextBox();
+            this.txt_reload_precision = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.btn_read = new System.Windows.Forms.Button();
+            this.textBox7 = new System.Windows.Forms.TextBox();
+            this.btn_send_garbage_byte = new System.Windows.Forms.Button();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // serialPort1
@@ -321,11 +338,176 @@
             this.btnTargetRotationCommand.UseVisualStyleBackColor = true;
             this.btnTargetRotationCommand.Click += new System.EventHandler(this.btnTargetRotationCommand_Click);
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(359, 339);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 32;
+            this.button2.Text = "begin";
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // btn_fire_command
+            // 
+            this.btn_fire_command.Location = new System.Drawing.Point(36, 525);
+            this.btn_fire_command.Name = "btn_fire_command";
+            this.btn_fire_command.Size = new System.Drawing.Size(75, 23);
+            this.btn_fire_command.TabIndex = 33;
+            this.btn_fire_command.Text = "Fire!";
+            this.btn_fire_command.UseVisualStyleBackColor = true;
+            this.btn_fire_command.Click += new System.EventHandler(this.btn_fire_command_Click);
+            // 
+            // separator
+            // 
+            this.separator.AutoSize = true;
+            this.separator.Location = new System.Drawing.Point(33, 426);
+            this.separator.Name = "separator";
+            this.separator.Size = new System.Drawing.Size(715, 13);
+            this.separator.TabIndex = 34;
+            this.separator.Text = "=================================================================================" +
+    "=====================================";
+            this.separator.Click += new System.EventHandler(this.label10_Click);
+            // 
+            // txt_target_orientation
+            // 
+            this.txt_target_orientation.Location = new System.Drawing.Point(141, 499);
+            this.txt_target_orientation.Name = "txt_target_orientation";
+            this.txt_target_orientation.Size = new System.Drawing.Size(100, 20);
+            this.txt_target_orientation.TabIndex = 35;
+            this.txt_target_orientation.Text = "60";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(247, 499);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(139, 13);
+            this.label10.TabIndex = 36;
+            this.label10.Text = "Target Orientation (degrees)";
+            this.label10.Click += new System.EventHandler(this.label10_Click_1);
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(247, 530);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(109, 13);
+            this.label11.TabIndex = 38;
+            this.label11.Text = "Fire Rotational Speed";
+            // 
+            // txt_fire_speed
+            // 
+            this.txt_fire_speed.Location = new System.Drawing.Point(141, 528);
+            this.txt_fire_speed.Name = "txt_fire_speed";
+            this.txt_fire_speed.Size = new System.Drawing.Size(100, 20);
+            this.txt_fire_speed.TabIndex = 37;
+            this.txt_fire_speed.Text = "180";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(247, 570);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(126, 13);
+            this.label12.TabIndex = 40;
+            this.label12.Text = "Reload Rotational Speed";
+            // 
+            // txt_reload_speed
+            // 
+            this.txt_reload_speed.Location = new System.Drawing.Point(141, 563);
+            this.txt_reload_speed.Name = "txt_reload_speed";
+            this.txt_reload_speed.Size = new System.Drawing.Size(100, 20);
+            this.txt_reload_speed.TabIndex = 39;
+            this.txt_reload_speed.Text = "45";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(247, 608);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(117, 13);
+            this.label13.TabIndex = 42;
+            this.label13.Text = "Fire Precision (degrees)";
+            // 
+            // txt_fire_precision
+            // 
+            this.txt_fire_precision.Location = new System.Drawing.Point(141, 601);
+            this.txt_fire_precision.Name = "txt_fire_precision";
+            this.txt_fire_precision.Size = new System.Drawing.Size(100, 20);
+            this.txt_fire_precision.TabIndex = 41;
+            this.txt_fire_precision.Text = "3";
+            // 
+            // txt_reload_precision
+            // 
+            this.txt_reload_precision.Location = new System.Drawing.Point(141, 642);
+            this.txt_reload_precision.Name = "txt_reload_precision";
+            this.txt_reload_precision.Size = new System.Drawing.Size(100, 20);
+            this.txt_reload_precision.TabIndex = 43;
+            this.txt_reload_precision.Text = "1";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(247, 645);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(134, 13);
+            this.label14.TabIndex = 44;
+            this.label14.Text = "Reload Precision (degrees)";
+            // 
+            // btn_read
+            // 
+            this.btn_read.Location = new System.Drawing.Point(495, 520);
+            this.btn_read.Name = "btn_read";
+            this.btn_read.Size = new System.Drawing.Size(75, 23);
+            this.btn_read.TabIndex = 45;
+            this.btn_read.Text = "Read!";
+            this.btn_read.UseVisualStyleBackColor = true;
+            this.btn_read.Click += new System.EventHandler(this.btn_read_Click);
+            // 
+            // textBox7
+            // 
+            this.textBox7.Location = new System.Drawing.Point(606, 520);
+            this.textBox7.Name = "textBox7";
+            this.textBox7.Size = new System.Drawing.Size(142, 20);
+            this.textBox7.TabIndex = 46;
+            this.textBox7.TextChanged += new System.EventHandler(this.textBox7_TextChanged);
+            // 
+            // btn_send_garbage_byte
+            // 
+            this.btn_send_garbage_byte.Location = new System.Drawing.Point(495, 459);
+            this.btn_send_garbage_byte.Name = "btn_send_garbage_byte";
+            this.btn_send_garbage_byte.Size = new System.Drawing.Size(75, 23);
+            this.btn_send_garbage_byte.TabIndex = 47;
+            this.btn_send_garbage_byte.Text = "Sent byte";
+            this.btn_send_garbage_byte.UseVisualStyleBackColor = true;
+            this.btn_send_garbage_byte.Click += new System.EventHandler(this.btn_send_garbage_byte_Click);
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 500;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(792, 701);
+            this.Controls.Add(this.btn_send_garbage_byte);
+            this.Controls.Add(this.textBox7);
+            this.Controls.Add(this.btn_read);
+            this.Controls.Add(this.label14);
+            this.Controls.Add(this.txt_reload_precision);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.txt_fire_precision);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.txt_reload_speed);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.txt_fire_speed);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.txt_target_orientation);
+            this.Controls.Add(this.separator);
+            this.Controls.Add(this.btn_fire_command);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.btnTargetRotationCommand);
             this.Controls.Add(this.targetRotationCommandBox);
             this.Controls.Add(this.targetRotationTextBox1);
@@ -357,6 +539,7 @@
             this.Controls.Add(this.btn_0);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -394,6 +577,23 @@
         private System.Windows.Forms.TextBox targetRotationTextBox1;
         private System.Windows.Forms.TextBox targetRotationCommandBox;
         private System.Windows.Forms.Button btnTargetRotationCommand;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btn_fire_command;
+        private System.Windows.Forms.Label separator;
+        private System.Windows.Forms.TextBox txt_target_orientation;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox txt_fire_speed;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox txt_reload_speed;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox txt_fire_precision;
+        private System.Windows.Forms.TextBox txt_reload_precision;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Button btn_read;
+        private System.Windows.Forms.TextBox textBox7;
+        private System.Windows.Forms.Button btn_send_garbage_byte;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
