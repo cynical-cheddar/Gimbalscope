@@ -27,7 +27,12 @@ namespace BrushlessPWMControllerGUI
 
             string indata = sp.ReadLine();
 
-            System.Diagnostics.Debug.WriteLine(indata);
+            if(indata.Length > 2)
+            {
+                System.Diagnostics.Debug.WriteLine(indata);
+            }
+
+            
             
 
             
@@ -174,30 +179,48 @@ namespace BrushlessPWMControllerGUI
             byte functionID = 0;
             byte endChar = 47; // '/'
 
-            float fireTargetAngle = Single.Parse(txt_target_orientation.Text);
-            byte[] bytes_fireTargetAngle = BitConverter.GetBytes(fireTargetAngle);
-            float fireDegreesPerSecond = Single.Parse(txt_fire_speed.Text);
-            byte[] bytes_fireDegreesPerSecond = BitConverter.GetBytes(fireDegreesPerSecond);
-            byte firePrecision = 3;
+            double fireTargetAngle = Single.Parse(txt_target_orientation.Text);
+            fireTargetAngle = Math.Round(fireTargetAngle, 4);
+            //byte[] bytes_fireTargetAngle = BitConverter.GetBytes(fireTargetAngle);
 
-            float reloadTargetAngle = 0;
+            double fireDegreesPerSecond = Single.Parse(txt_fire_speed.Text);
+            fireDegreesPerSecond = Math.Round(fireDegreesPerSecond, 4);
+            //byte[] bytes_fireDegreesPerSecond = BitConverter.GetBytes(fireDegreesPerSecond);
+
+
+            string firePrecisonString = txt_fire_precision.Text;
+
+            double reloadTargetAngle = 0;
+            reloadTargetAngle = Math.Round(reloadTargetAngle, 4);
+
+
             byte[] bytes_reloadTargetAngle = BitConverter.GetBytes(reloadTargetAngle);
-            float reloadDegreesPerSecond = Single.Parse(txt_reload_speed.Text);
+            double reloadDegreesPerSecond = Single.Parse(txt_reload_speed.Text);
+            reloadDegreesPerSecond = Math.Round(reloadDegreesPerSecond, 4);
             byte[] bytes_reloadDegreesPerSecond = BitConverter.GetBytes(reloadDegreesPerSecond);
             byte reloadPrecision = 1;
-            
+
+            string reloadPrecisionString = txt_reload_precision.Text;
 
 
 
+            /*
             byte[] buf = new byte[] { motorType, motorID, functionID, bytes_fireTargetAngle[0], bytes_fireTargetAngle[1],
                 bytes_fireTargetAngle[2], bytes_fireTargetAngle[3], bytes_fireDegreesPerSecond[0], bytes_fireDegreesPerSecond[1],
                 bytes_fireDegreesPerSecond[2], bytes_fireDegreesPerSecond[3], firePrecision, bytes_reloadTargetAngle[0], bytes_reloadTargetAngle[1],
-                bytes_reloadTargetAngle[2], bytes_reloadTargetAngle[3], bytes_reloadDegreesPerSecond[0], bytes_reloadDegreesPerSecond[1],
+                bytes_reloadTargetAngle[2], bytes_reoadTargetAngle[3], bytes_reloadDegreesPerSecond[0], bytes_reloadDegreesPerSecond[1],
                 bytes_reloadDegreesPerSecond[2], bytes_reloadDegreesPerSecond[3], reloadPrecision, endChar };
+            */
+
+            string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireTargetAngle.ToString() + "," + fireDegreesPerSecond.ToString() + "," + firePrecisonString +  "," + reloadTargetAngle.ToString() + "," + reloadDegreesPerSecond.ToString() + "," + reloadPrecisionString + ",";
+
 
             System.Diagnostics.Debug.WriteLine("--btn_fire_command_Click--");
+            //System.Diagnostics.Debug.WriteLine(commandString);
+            byte[] utf8String = Encoding.UTF8.GetBytes(commandString);
 
-            serialPort1.Write(buf, 0, 22);
+
+            serialPort1.Write(utf8String, 0, utf8String.Length);
             
             
         }

@@ -62,6 +62,10 @@ MotorController_c motorController_right;
 #define STATE_ZERO_COMMAND 11
 #define STATE_ZERO_LOOP 12
 
+// States define zero-ing setup:
+#define STATE_SETUP_ZERO_COMMAND 13
+#define STATE_SETUP_ZERO_LOOP 14
+
 
 #define STATE_REST  11
 int STATE = 0;
@@ -106,8 +110,7 @@ void setup() {
 
   if(serialDebug)Serial.println("Begun");
 
-  debugMotor = AFMS.getMotor(4);
-  debugMotor->setSpeed(60);
+
   digitalWrite(LED_BUILTIN, LOW);
   STATE = STATE_LISTENING_MASTER;
 
@@ -127,30 +130,100 @@ bool up = true;
 //============================================ DECODER SECTION ========================================//
 
 bool SerialDecoder2(){
+
   // put your main code here, to run repeatedly:
-  bool validMessage = true;
+  bool validMessage = false;
   // we shall set max buffer size to be 32 bytes
-  static byte message[32];
-  byte parameters[28];
-  static unsigned int message_pos = 0;
+  String  message;
   while(Serial.available() > 0){
     delay(5);
-    Serial.println("-");
     digitalWrite(LED_BUILTIN, HIGH);
-    char inByte = Serial.read();
-
-    // add byte to message
-    if(inByte != '/' && (message_pos+1 < 32)){
-      message[message_pos] = inByte;
-      message_pos ++;
-    }
-    else{
-      break;
-    }
+    if (Serial.available() >0) {
+      char c = Serial.read();  //gets one byte from serial buffer
+      message += c; //makes the string readString
+    } 
   }
   digitalWrite(LED_BUILTIN, LOW);
   // now decode the message
+  if(message != ""){
+    Serial.println(message);
+    delay(100);
+    validMessage = true;
+  }
+  if(validMessage){
+    digitalWrite(LED_BUILTIN, LOW);
+    byte motorType = message.charAt(0);
+    byte motorID = message.charAt(1);
+    byte functionID = message.charAt(2);
+    // gimbals
+    if(motorType == '0'){
+      Serial.println("Fire and reload");
+      // fire and reload
+      if(functionID == '0'){
+        float message_fireTargetAngle = 60.0f;
+        float message_fireSpeed = 720.0f;
+        float message_firePrecision = 4.0f;
+        
+        float message_reloadTargetAngle = 0.0f;
+        float message_reloadSpeed = 30.0f;
+        float message_reloadPrecision = 1.0f;
 
+        int messageLength = message.length();
+
+        String currentSubMessage = "";
+        int parameterNumber = 0;
+        bool firstParameter = true;
+        
+        for (int i = 0; i < messageLength; i++){
+          if(message.charAt(i) == ','){
+            if(firstParameter){
+              firstParameter = false;
+              currentSubMessage = "";
+            }
+            else{
+              if(parameterNumber == 0) message_fireTargetAngle = currentSubMessage.toFloat();
+              else if(parameterNumber == 1) message_fireSpeed = currentSubMessage.toFloat();
+              else if(parameterNumber == 2) message_firePrecision = currentSubMessage.toFloat();
+              
+              else if(parameterNumber == 3) message_reloadTargetAngle = currentSubMessage.toFloat();
+              else if(parameterNumber == 4) message_reloadSpeed = currentSubMessage.toFloat();
+              else if(parameterNumber == 5) message_reloadPrecision = currentSubMessage.toFloat();  
+              currentSubMessage = "";
+              parameterNumber += 1;
+              
+            }
+          }
+          else{
+            currentSubMessage += message.charAt(i);          
+          }
+          
+        }
+        
+        
+        Serial.println(message_fireTargetAngle);
+        Serial.println(message_fireSpeed);
+        Serial.println(message_firePrecision);
+
+        Serial.println(message_reloadTargetAngle);
+        Serial.println(message_reloadSpeed);
+        Serial.println(message_reloadPrecision);
+        
+        fireTargetAngle = message_fireTargetAngle;
+        fireDegreesPerSecond = message_fireSpeed;
+        firePrecision = message_firePrecision;
+        
+        reloadTargetAngle = message_reloadTargetAngle;
+        reloadDegreesPerSecond = message_reloadSpeed;
+        reloadPrecision = message_reloadPrecision;
+        STATE = STATE_FIRE_COMMAND;
+        return;
+      }
+    }
+    else{
+      Serial.println("motor not yet implemented");
+    }
+  }
+  /*
   byte motorType = message[0];
   byte motorID = message[1];
   byte functionID = message[2];
@@ -228,7 +301,9 @@ bool SerialDecoder2(){
   else if(motorType == 2){
     
   }
+  */
 }
+
 
 
 // ======================== END DECODER SECTION ========================================//
@@ -239,6 +314,8 @@ void loop() {
     //if(Serial.available()){
       //SerialDecoder();
     //}
+
+
 
     servo1.write(servoAAAA);
     
@@ -274,7 +351,19 @@ void loop() {
     STATE_RELOAD_COMMAND  9
     STATE_RELOAD_LOOP  10
     */
+    if(STATE == STATE_SETUP_ZERO_COMMAND){
+      motorController_right.ReceiveCommand(0, 30, 1);
+      motorController_left.ReceiveCommand(0, 20, 1);
+      STATE = STATE_SETUP_ZERO_LOOP;
+    }
+    if(STATE == STATE_SETUP_ZERO_LOOP){
+      if(motorController_right.doneCommand && motorController_left.doneCommand){
+        STATE = STATE_LISTENING_MASTER;
+      }
+    }
+    
     if(STATE == STATE_LISTENING_MASTER){
+      
       SerialDecoder2();
       
     }

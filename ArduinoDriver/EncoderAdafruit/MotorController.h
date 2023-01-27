@@ -91,7 +91,7 @@ class MotorController_c {
     void SetTargetRPM(float newRPM){
       RPM_degrees_target = newRPM;
       // set current power via heuristic:
-      currentMotorPower = map(newRPM ,0, 580, 22, 255);
+      currentMotorPower = map(newRPM ,0, 1080, 22, 255);
     }
 
     void SetTargetRotation(float newRotation){
