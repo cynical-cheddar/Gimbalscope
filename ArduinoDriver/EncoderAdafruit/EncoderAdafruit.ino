@@ -3,7 +3,7 @@
 
 #include "MotorController.h"
 #include "QuadratureEncoder.h"
-
+#include "MessageDecoder.h"
 #include <Servo.h>
 
 
@@ -13,7 +13,11 @@
 bool serialDebug = true;
 Adafruit_DCMotor *debugMotor;
 
-Servo servo1;
+Servo brushless_motor_left; 
+Servo brushless_motor_right; 
+#define brushless_motor_pin_left 8
+#define brushless_motor_pin_right 9
+
 
 int ServoPos = 0;    // variable to store the servo position
 
@@ -83,10 +87,12 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 void setup() {
   STATE = STATE_SETUP;
   Serial.begin(9600);           // set up Serial library at 9600 bps
-
+  
+  brushless_motor_left.attach(brushless_motor_pin_left);
+  brushless_motor_right.attach(brushless_motor_pin_right);
 
   if(serialDebug)Serial.println("begin...");
-  servo1.attach(10);
+
   //pinMode(20, INPUT);
   //pinMode(21, INPUT);
   //SetupEncoders();
@@ -107,10 +113,25 @@ void setup() {
   motorController_right.SetUpMotor(2);
   motorController_left.targetRotation = targetRotation;
 
+  if(serialDebug)Serial.println("Setting up brushless calibration");
 
+  delay(100);
+  brushless_motor_left.writeMicroseconds(1060);
+  brushless_motor_right.writeMicroseconds(1060);
+
+  delay(5000);
+  brushless_motor_left.writeMicroseconds(1700);
+  brushless_motor_right.writeMicroseconds(1700);
+  delay(5000);
+  brushless_motor_left.writeMicroseconds(1060);
+  brushless_motor_right.writeMicroseconds(1060);
+
+  
+
+  delay(10000);
   if(serialDebug)Serial.println("Begun");
-
-
+  brushless_motor_left.write(160);
+  brushless_motor_right.write(160);
   digitalWrite(LED_BUILTIN, LOW);
   STATE = STATE_LISTENING_MASTER;
 
@@ -317,7 +338,7 @@ void loop() {
 
 
 
-    servo1.write(servoAAAA);
+
     
   
     //Serial.println("serialAvailable");
