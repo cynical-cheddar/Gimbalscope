@@ -64,92 +64,112 @@ namespace BrushlessPWMControllerGUI
 
         private void hScrollBar1_Scroll(object sender, ScrollEventArgs e)
         {
-            serialPort1.Write("a");
-            serialPort1.Write(hScrollBar1.Value.ToString());
-            serialPort1.Write("/");
-            textBox1.Text = hScrollBar1.Value.ToString();
+
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            serialPort1.Write("b");
-        }
+
 
         private void hScrollBar2_Scroll(object sender, ScrollEventArgs e)
         {
-            serialPort1.Write("b");
-            serialPort1.Write(hScrollBar2.Value.ToString());
-            serialPort1.Write("/");
-            textBox2.Text = hScrollBar2.Value.ToString();
+
         }
 
         private void hScrollBar3_Scroll(object sender, ScrollEventArgs e)
         {
-            serialPort1.Write("c");
-            serialPort1.Write(hScrollBar3.Value.ToString());
-            serialPort1.Write("/");
-            textBox3.Text = hScrollBar3.Value.ToString();
-            textBox2.Text = hScrollBar3.Value.ToString();
-            textBox1.Text = hScrollBar3.Value.ToString();
 
-            hScrollBar2.Value = hScrollBar3.Value;
-            hScrollBar1.Value = hScrollBar3.Value;
         }
 
+        
+        // left gimbal
         private void vScrollBar1_Scroll(object sender, ScrollEventArgs e)
         {
-            serialPort1.Write("d");
-            serialPort1.Write(vScrollBar1.Value.ToString());
-            serialPort1.Write("/");
-            textBox4.Text = vScrollBar1.Value.ToString();
+            
+        }
+
+        private void SetLeftGimbalPosition()
+        {
+            txt_gimbal_left_rotation.Text = vScrollBar1.Value.ToString();
+
+            byte motorType = 0;
+            byte motorID = 1;
+            byte functionID = 1;
+            float targetAngle = vScrollBar1.Value;
+            float moveSpeed = 90f;
+            float precision = 1f;
+            string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + targetAngle.ToString() + "," + moveSpeed.ToString() + "," + precision + ",";
+
+
+            System.Diagnostics.Debug.WriteLine("--vScrollBar1_Scroll--");
+            //System.Diagnostics.Debug.WriteLine(commandString);
+            byte[] utf8String = Encoding.UTF8.GetBytes(commandString);
+
+
+            serialPort1.Write(utf8String, 0, utf8String.Length);
+        }
+
+        private void SetRightGimbalPosition()
+        {
+            txt_gimbal_left_rotation.Text = vScrollBar1.Value.ToString();
+
+            byte motorType = 0;
+            byte motorID = 2;
+            byte functionID = 1;
+            float targetAngle = vScrollBar2.Value;
+            float moveSpeed = 90f;
+            float precision = 1f;
+            string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + targetAngle.ToString() + "," + moveSpeed.ToString() + "," + precision + ",";
+
+
+            System.Diagnostics.Debug.WriteLine("--vScrollBar2_Scroll--");
+            //System.Diagnostics.Debug.WriteLine(commandString);
+            byte[] utf8String = Encoding.UTF8.GetBytes(commandString);
+
+
+            serialPort1.Write(utf8String, 0, utf8String.Length);
+        }
+
+        private void SetBothGimbalPositions()
+        {
+
+            byte motorType = 0;
+            byte motorID = 0;
+            byte functionID = 1;
+            float targetAngle = vScrollBar3.Value;
+            float moveSpeed = 90f;
+            float precision = 1f;
+            string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + targetAngle.ToString() + "," + moveSpeed.ToString() + "," + precision + ",";
+
+
+            System.Diagnostics.Debug.WriteLine("--vScrollBar3_Scroll--");
+            //System.Diagnostics.Debug.WriteLine(commandString);
+            byte[] utf8String = Encoding.UTF8.GetBytes(commandString);
+
+
+            serialPort1.Write(utf8String, 0, utf8String.Length);
         }
 
         private void vScrollBar2_Scroll(object sender, ScrollEventArgs e)
-        {
-            serialPort1.Write("e");
-            serialPort1.Write(vScrollBar2.Value.ToString());
-            serialPort1.Write("/");
-            textBox5.Text = vScrollBar2.Value.ToString();
+        { 
         }
 
         private void vScrollBar3_Scroll(object sender, ScrollEventArgs e)
         {
-            serialPort1.Write("f");
-            serialPort1.Write(vScrollBar3.Value.ToString());
-            serialPort1.Write("/");
-            textBox6.Text = vScrollBar3.Value.ToString();
-            vScrollBar1.Value = vScrollBar3.Value;
-            vScrollBar2.Value = vScrollBar3.Value;
+
         }
 
         private void vScrollBar4_Scroll(object sender, ScrollEventArgs e)
         {
-            serialPort1.Write("g");
-            serialPort1.Write(vScrollBar4.Value.ToString());
-            serialPort1.Write("/");
-            textBox6.Text = vScrollBar4.Value.ToString();
-            vScrollBar1.Value = vScrollBar4.Value;
-            vScrollBar2.Value = 255 - vScrollBar4.Value;
+            
         }
 
 
 
         private void vScrollBar5_Scroll(object sender, ScrollEventArgs e)
         {
-            serialPort1.Write("h");
-            serialPort1.Write(vScrollBar5.Value.ToString());
-            serialPort1.Write("/");
-            targetRotationTextBox1.Text = vScrollBar5.Value.ToString();
-            
         }
 
         private void btnTargetRotationCommand_Click(object sender, EventArgs e)
         {
-            serialPort1.Write("h");
-            serialPort1.Write(targetRotationCommandBox.Text);
-            serialPort1.Write("/");
-            vScrollBar5.Value = Int32.Parse(targetRotationCommandBox.Text);
-            targetRotationTextBox1.Text = targetRotationCommandBox.Text;
         }
 
         private void label8_Click(object sender, EventArgs e)
@@ -243,13 +263,89 @@ namespace BrushlessPWMControllerGUI
             serialPort1.Write(garbageByte, 0, 1);
         }
 
+        private void SetBrushlessPWM(byte motorID, float targetPWM)
+        {
+            byte motorType = 2;
+            byte functionID = 0;
+            string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + targetPWM.ToString() + ",";
+            System.Diagnostics.Debug.WriteLine("--brushless change --" + motorID.ToString());
+            //System.Diagnostics.Debug.WriteLine(commandString);
+            byte[] utf8String = Encoding.UTF8.GetBytes(commandString);
+
+            serialPort1.Write(utf8String, 0, utf8String.Length);
+        }
+
+        int vScrollBar1_LastValue = 0;
+        int vScrollBar2_LastValue = 0;
+        int vScrollBar3_LastValue = 0;
+
+        int hScrollBar_left_brushless_LastValue = 0;
+        int hScrollBar_right_brushless_LastValue = 0;
+        int hScrollBar_both_brushless_LastValue = 0;
+
         private void timer1_Tick(object sender, EventArgs e)
         {
-            // POLLING METHDOD
 
-            //String portContents = (serialPort1.ReadLine());
-            //textBox7.Text = portContents;
-            //System.Diagnostics.Debug.WriteLine(portContents);
+            // gimbal control
+            if (vScrollBar3_LastValue != vScrollBar3.Value)
+            {
+                SetBothGimbalPositions();
+                vScrollBar3_LastValue = vScrollBar3.Value;
+
+                vScrollBar1.Value = vScrollBar3.Value;
+                vScrollBar2.Value = vScrollBar3.Value;
+
+                txt_gimbal_both_rotation.Text = vScrollBar3.Value.ToString();
+                txt_gimbal_right_rotation.Text = vScrollBar3.Value.ToString();
+                txt_gimbal_left_rotation.Text = vScrollBar3.Value.ToString();
+            }
+
+            else if (vScrollBar1_LastValue != vScrollBar1.Value)
+            {
+                SetLeftGimbalPosition();
+                vScrollBar1_LastValue = vScrollBar1.Value;
+                txt_gimbal_left_rotation.Text = vScrollBar1.Value.ToString();
+            }
+            else if (vScrollBar2_LastValue != vScrollBar2.Value)
+            {
+                SetRightGimbalPosition();
+                vScrollBar2_LastValue = vScrollBar2.Value;
+                txt_gimbal_right_rotation.Text = vScrollBar2.Value.ToString();
+            }
+            
+
+            // brushless control
+            if (hScrollBar_both_brushless_LastValue != hScrollBar_both_brushless.Value)
+            {
+                byte both_id = 0;
+                SetBrushlessPWM(both_id, (float) hScrollBar_both_brushless.Value);
+
+                txt_brushless_pwm_both.Text = hScrollBar_both_brushless.Value.ToString();
+                txt_brushless_pwm_left.Text = hScrollBar_both_brushless.Value.ToString();
+                txt_brushless_pwm_right.Text = hScrollBar_both_brushless.Value.ToString();
+
+                hScrollBar_left_brushless.Value = hScrollBar_both_brushless.Value;
+                hScrollBar_right_brushless.Value = hScrollBar_both_brushless.Value;
+
+                hScrollBar_both_brushless_LastValue = hScrollBar_both_brushless.Value;
+                hScrollBar_left_brushless_LastValue = hScrollBar_both_brushless.Value;
+                hScrollBar_right_brushless_LastValue = hScrollBar_both_brushless.Value;
+            }
+
+            else if (hScrollBar_left_brushless_LastValue != hScrollBar_left_brushless.Value)
+            {
+                byte left_id = 1;
+                SetBrushlessPWM(left_id, (float)hScrollBar_left_brushless.Value);
+                txt_brushless_pwm_left.Text = hScrollBar_left_brushless_LastValue.ToString();
+                hScrollBar_left_brushless_LastValue = hScrollBar_left_brushless.Value;
+            }
+            else if (hScrollBar_right_brushless_LastValue != hScrollBar_right_brushless.Value)
+            {
+                byte right_id = 2;
+                SetBrushlessPWM(right_id, (float)hScrollBar_right_brushless.Value);
+                txt_brushless_pwm_right.Text = hScrollBar_right_brushless_LastValue.ToString();
+                hScrollBar_right_brushless_LastValue = hScrollBar_right_brushless.Value;
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)

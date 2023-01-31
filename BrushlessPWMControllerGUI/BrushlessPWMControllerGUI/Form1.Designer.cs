@@ -30,36 +30,19 @@
         {
             this.components = new System.ComponentModel.Container();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
-            this.btn_0 = new System.Windows.Forms.Button();
-            this.hScrollBar1 = new System.Windows.Forms.HScrollBar();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.hScrollBar2 = new System.Windows.Forms.HScrollBar();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.hScrollBar_left_brushless = new System.Windows.Forms.HScrollBar();
+            this.hScrollBar_right_brushless = new System.Windows.Forms.HScrollBar();
             this.lblBrushless2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.hScrollBar3 = new System.Windows.Forms.HScrollBar();
-            this.label2 = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
             this.vScrollBar1 = new System.Windows.Forms.VScrollBar();
             this.vScrollBar2 = new System.Windows.Forms.VScrollBar();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.textBox5 = new System.Windows.Forms.TextBox();
+            this.txt_gimbal_left_rotation = new System.Windows.Forms.TextBox();
+            this.txt_gimbal_right_rotation = new System.Windows.Forms.TextBox();
             this.vScrollBar3 = new System.Windows.Forms.VScrollBar();
-            this.textBox6 = new System.Windows.Forms.TextBox();
+            this.txt_gimbal_both_rotation = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.vScrollBar4 = new System.Windows.Forms.VScrollBar();
-            this.label6 = new System.Windows.Forms.Label();
-            this.vScrollBar5 = new System.Windows.Forms.VScrollBar();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.targetRotationTextBox1 = new System.Windows.Forms.TextBox();
-            this.targetRotationCommandBox = new System.Windows.Forms.TextBox();
-            this.btnTargetRotationCommand = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
             this.btn_fire_command = new System.Windows.Forms.Button();
             this.separator = new System.Windows.Forms.Label();
             this.txt_target_orientation = new System.Windows.Forms.TextBox();
@@ -76,62 +59,38 @@
             this.textBox7 = new System.Windows.Forms.TextBox();
             this.btn_send_garbage_byte = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.txt_brushless_pwm_left = new System.Windows.Forms.TextBox();
+            this.txt_brushless_pwm_right = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.hScrollBar_both_brushless = new System.Windows.Forms.HScrollBar();
+            this.txt_brushless_pwm_both = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // serialPort1
             // 
             this.serialPort1.PortName = "COM11";
             // 
-            // btn_0
+            // hScrollBar_left_brushless
             // 
-            this.btn_0.Location = new System.Drawing.Point(0, 0);
-            this.btn_0.Name = "btn_0";
-            this.btn_0.Size = new System.Drawing.Size(75, 23);
-            this.btn_0.TabIndex = 6;
+            this.hScrollBar_left_brushless.Location = new System.Drawing.Point(282, 121);
+            this.hScrollBar_left_brushless.Maximum = 120;
+            this.hScrollBar_left_brushless.Minimum = 50;
+            this.hScrollBar_left_brushless.Name = "hScrollBar_left_brushless";
+            this.hScrollBar_left_brushless.Size = new System.Drawing.Size(251, 30);
+            this.hScrollBar_left_brushless.TabIndex = 2;
+            this.hScrollBar_left_brushless.Value = 50;
+            this.hScrollBar_left_brushless.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar1_Scroll);
             // 
-            // hScrollBar1
+            // hScrollBar_right_brushless
             // 
-            this.hScrollBar1.Location = new System.Drawing.Point(282, 329);
-            this.hScrollBar1.Maximum = 255;
-            this.hScrollBar1.Name = "hScrollBar1";
-            this.hScrollBar1.Size = new System.Drawing.Size(251, 30);
-            this.hScrollBar1.TabIndex = 2;
-            this.hScrollBar1.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar1_Scroll);
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(310, 372);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(173, 20);
-            this.textBox1.TabIndex = 3;
-            this.textBox1.Text = "0";
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(21, 29);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "begin";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // hScrollBar2
-            // 
-            this.hScrollBar2.Location = new System.Drawing.Point(275, 210);
-            this.hScrollBar2.Maximum = 255;
-            this.hScrollBar2.Name = "hScrollBar2";
-            this.hScrollBar2.Size = new System.Drawing.Size(251, 30);
-            this.hScrollBar2.TabIndex = 7;
-            this.hScrollBar2.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar2_Scroll);
-            // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(310, 256);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(173, 20);
-            this.textBox2.TabIndex = 8;
-            this.textBox2.Text = "0";
+            this.hScrollBar_right_brushless.Location = new System.Drawing.Point(282, 213);
+            this.hScrollBar_right_brushless.Maximum = 120;
+            this.hScrollBar_right_brushless.Minimum = 50;
+            this.hScrollBar_right_brushless.Name = "hScrollBar_right_brushless";
+            this.hScrollBar_right_brushless.Size = new System.Drawing.Size(251, 30);
+            this.hScrollBar_right_brushless.TabIndex = 7;
+            this.hScrollBar_right_brushless.Value = 50;
+            this.hScrollBar_right_brushless.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar2_Scroll);
             // 
             // lblBrushless2
             // 
@@ -145,42 +104,17 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(362, 295);
+            this.label1.Location = new System.Drawing.Point(362, 87);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(61, 13);
             this.label1.TabIndex = 10;
             this.label1.Text = "Brushless 1";
             // 
-            // hScrollBar3
-            // 
-            this.hScrollBar3.Location = new System.Drawing.Point(282, 114);
-            this.hScrollBar3.Maximum = 255;
-            this.hScrollBar3.Name = "hScrollBar3";
-            this.hScrollBar3.Size = new System.Drawing.Size(251, 30);
-            this.hScrollBar3.TabIndex = 11;
-            this.hScrollBar3.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar3_Scroll);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(362, 91);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(29, 13);
-            this.label2.TabIndex = 12;
-            this.label2.Text = "Both";
-            // 
-            // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(310, 147);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(173, 20);
-            this.textBox3.TabIndex = 13;
-            this.textBox3.Text = "0";
-            // 
             // vScrollBar1
             // 
             this.vScrollBar1.Location = new System.Drawing.Point(57, 114);
-            this.vScrollBar1.Maximum = 255;
+            this.vScrollBar1.Maximum = 180;
+            this.vScrollBar1.Minimum = -180;
             this.vScrollBar1.Name = "vScrollBar1";
             this.vScrollBar1.Size = new System.Drawing.Size(39, 245);
             this.vScrollBar1.TabIndex = 14;
@@ -189,7 +123,8 @@
             // vScrollBar2
             // 
             this.vScrollBar2.Location = new System.Drawing.Point(120, 114);
-            this.vScrollBar2.Maximum = 255;
+            this.vScrollBar2.Maximum = 180;
+            this.vScrollBar2.Minimum = -180;
             this.vScrollBar2.Name = "vScrollBar2";
             this.vScrollBar2.Size = new System.Drawing.Size(39, 245);
             this.vScrollBar2.TabIndex = 15;
@@ -200,152 +135,64 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(52, 74);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(44, 13);
+            this.label3.Size = new System.Drawing.Size(60, 13);
             this.label3.TabIndex = 16;
-            this.label3.Text = "Servo 1";
+            this.label3.Text = "Left Gimbal";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(117, 74);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(44, 13);
+            this.label4.Size = new System.Drawing.Size(67, 13);
             this.label4.TabIndex = 17;
-            this.label4.Text = "Servo 2";
+            this.label4.Text = "Right Gimbal";
             // 
-            // textBox4
+            // txt_gimbal_left_rotation
             // 
-            this.textBox4.Location = new System.Drawing.Point(55, 372);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(41, 20);
-            this.textBox4.TabIndex = 18;
-            this.textBox4.Text = "0";
+            this.txt_gimbal_left_rotation.Location = new System.Drawing.Point(55, 372);
+            this.txt_gimbal_left_rotation.Name = "txt_gimbal_left_rotation";
+            this.txt_gimbal_left_rotation.ReadOnly = true;
+            this.txt_gimbal_left_rotation.Size = new System.Drawing.Size(41, 20);
+            this.txt_gimbal_left_rotation.TabIndex = 18;
+            this.txt_gimbal_left_rotation.Text = "0";
             // 
-            // textBox5
+            // txt_gimbal_right_rotation
             // 
-            this.textBox5.Location = new System.Drawing.Point(118, 372);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(41, 20);
-            this.textBox5.TabIndex = 19;
-            this.textBox5.Text = "0";
+            this.txt_gimbal_right_rotation.Location = new System.Drawing.Point(118, 372);
+            this.txt_gimbal_right_rotation.Name = "txt_gimbal_right_rotation";
+            this.txt_gimbal_right_rotation.ReadOnly = true;
+            this.txt_gimbal_right_rotation.Size = new System.Drawing.Size(41, 20);
+            this.txt_gimbal_right_rotation.TabIndex = 19;
+            this.txt_gimbal_right_rotation.Text = "0";
             // 
             // vScrollBar3
             // 
-            this.vScrollBar3.Location = new System.Drawing.Point(172, 114);
-            this.vScrollBar3.Maximum = 255;
+            this.vScrollBar3.Location = new System.Drawing.Point(202, 114);
+            this.vScrollBar3.Maximum = 180;
+            this.vScrollBar3.Minimum = -180;
             this.vScrollBar3.Name = "vScrollBar3";
             this.vScrollBar3.Size = new System.Drawing.Size(39, 245);
             this.vScrollBar3.TabIndex = 20;
             this.vScrollBar3.Scroll += new System.Windows.Forms.ScrollEventHandler(this.vScrollBar3_Scroll);
             // 
-            // textBox6
+            // txt_gimbal_both_rotation
             // 
-            this.textBox6.Location = new System.Drawing.Point(170, 372);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(41, 20);
-            this.textBox6.TabIndex = 21;
-            this.textBox6.Text = "0";
+            this.txt_gimbal_both_rotation.Location = new System.Drawing.Point(200, 372);
+            this.txt_gimbal_both_rotation.Name = "txt_gimbal_both_rotation";
+            this.txt_gimbal_both_rotation.ReadOnly = true;
+            this.txt_gimbal_both_rotation.Size = new System.Drawing.Size(41, 20);
+            this.txt_gimbal_both_rotation.TabIndex = 21;
+            this.txt_gimbal_both_rotation.Text = "0";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(169, 74);
+            this.label5.Location = new System.Drawing.Point(197, 74);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(28, 13);
+            this.label5.Size = new System.Drawing.Size(69, 13);
             this.label5.TabIndex = 22;
-            this.label5.Text = "both";
-            // 
-            // vScrollBar4
-            // 
-            this.vScrollBar4.Location = new System.Drawing.Point(222, 114);
-            this.vScrollBar4.Maximum = 255;
-            this.vScrollBar4.Name = "vScrollBar4";
-            this.vScrollBar4.Size = new System.Drawing.Size(39, 245);
-            this.vScrollBar4.TabIndex = 23;
-            this.vScrollBar4.Scroll += new System.Windows.Forms.ScrollEventHandler(this.vScrollBar4_Scroll);
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(219, 74);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(31, 13);
-            this.label6.TabIndex = 24;
-            this.label6.Text = "both-";
-            // 
-            // vScrollBar5
-            // 
-            this.vScrollBar5.Location = new System.Drawing.Point(687, 74);
-            this.vScrollBar5.Maximum = 10000;
-            this.vScrollBar5.Minimum = -10000;
-            this.vScrollBar5.Name = "vScrollBar5";
-            this.vScrollBar5.Size = new System.Drawing.Size(39, 245);
-            this.vScrollBar5.TabIndex = 25;
-            this.vScrollBar5.Scroll += new System.Windows.Forms.ScrollEventHandler(this.vScrollBar5_Scroll);
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(684, 39);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(81, 13);
-            this.label7.TabIndex = 26;
-            this.label7.Text = "Target Rotation";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(640, 74);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(40, 13);
-            this.label8.TabIndex = 27;
-            this.label8.Text = "-10000";
-            this.label8.Click += new System.EventHandler(this.label8_Click);
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(640, 306);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(37, 13);
-            this.label9.TabIndex = 28;
-            this.label9.Text = "10000";
-            // 
-            // targetRotationTextBox1
-            // 
-            this.targetRotationTextBox1.Location = new System.Drawing.Point(687, 339);
-            this.targetRotationTextBox1.Name = "targetRotationTextBox1";
-            this.targetRotationTextBox1.Size = new System.Drawing.Size(41, 20);
-            this.targetRotationTextBox1.TabIndex = 29;
-            this.targetRotationTextBox1.Text = "0";
-            this.targetRotationTextBox1.TextChanged += new System.EventHandler(this.targetRotationTextBox1_TextChanged);
-            // 
-            // targetRotationCommandBox
-            // 
-            this.targetRotationCommandBox.Location = new System.Drawing.Point(585, 339);
-            this.targetRotationCommandBox.Name = "targetRotationCommandBox";
-            this.targetRotationCommandBox.Size = new System.Drawing.Size(41, 20);
-            this.targetRotationCommandBox.TabIndex = 30;
-            this.targetRotationCommandBox.Text = "0";
-            // 
-            // btnTargetRotationCommand
-            // 
-            this.btnTargetRotationCommand.Location = new System.Drawing.Point(571, 365);
-            this.btnTargetRotationCommand.Name = "btnTargetRotationCommand";
-            this.btnTargetRotationCommand.Size = new System.Drawing.Size(75, 23);
-            this.btnTargetRotationCommand.TabIndex = 31;
-            this.btnTargetRotationCommand.Text = "send";
-            this.btnTargetRotationCommand.UseVisualStyleBackColor = true;
-            this.btnTargetRotationCommand.Click += new System.EventHandler(this.btnTargetRotationCommand_Click);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(359, 339);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 32;
-            this.button2.Text = "begin";
-            this.button2.UseVisualStyleBackColor = true;
+            this.label5.Text = "Both Gimbals";
             // 
             // btn_fire_command
             // 
@@ -401,7 +248,7 @@
             this.txt_fire_speed.Name = "txt_fire_speed";
             this.txt_fire_speed.Size = new System.Drawing.Size(100, 20);
             this.txt_fire_speed.TabIndex = 37;
-            this.txt_fire_speed.Text = "180";
+            this.txt_fire_speed.Text = "720";
             // 
             // label12
             // 
@@ -484,14 +331,66 @@
             // 
             // timer1
             // 
+            this.timer1.Enabled = true;
             this.timer1.Interval = 500;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // txt_brushless_pwm_left
+            // 
+            this.txt_brushless_pwm_left.Location = new System.Drawing.Point(560, 131);
+            this.txt_brushless_pwm_left.Name = "txt_brushless_pwm_left";
+            this.txt_brushless_pwm_left.ReadOnly = true;
+            this.txt_brushless_pwm_left.Size = new System.Drawing.Size(41, 20);
+            this.txt_brushless_pwm_left.TabIndex = 49;
+            this.txt_brushless_pwm_left.Text = "0";
+            // 
+            // txt_brushless_pwm_right
+            // 
+            this.txt_brushless_pwm_right.Location = new System.Drawing.Point(560, 223);
+            this.txt_brushless_pwm_right.Name = "txt_brushless_pwm_right";
+            this.txt_brushless_pwm_right.ReadOnly = true;
+            this.txt_brushless_pwm_right.Size = new System.Drawing.Size(41, 20);
+            this.txt_brushless_pwm_right.TabIndex = 50;
+            this.txt_brushless_pwm_right.Text = "0";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(362, 280);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(77, 13);
+            this.label2.TabIndex = 52;
+            this.label2.Text = "Brushless Both";
+            // 
+            // hScrollBar_both_brushless
+            // 
+            this.hScrollBar_both_brushless.Location = new System.Drawing.Point(282, 305);
+            this.hScrollBar_both_brushless.Maximum = 120;
+            this.hScrollBar_both_brushless.Minimum = 50;
+            this.hScrollBar_both_brushless.Name = "hScrollBar_both_brushless";
+            this.hScrollBar_both_brushless.Size = new System.Drawing.Size(251, 30);
+            this.hScrollBar_both_brushless.TabIndex = 51;
+            this.hScrollBar_both_brushless.Value = 50;
+            // 
+            // txt_brushless_pwm_both
+            // 
+            this.txt_brushless_pwm_both.Location = new System.Drawing.Point(560, 305);
+            this.txt_brushless_pwm_both.Name = "txt_brushless_pwm_both";
+            this.txt_brushless_pwm_both.ReadOnly = true;
+            this.txt_brushless_pwm_both.Size = new System.Drawing.Size(41, 20);
+            this.txt_brushless_pwm_both.TabIndex = 53;
+            this.txt_brushless_pwm_both.Text = "0";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(792, 701);
+            this.Controls.Add(this.txt_brushless_pwm_both);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.hScrollBar_both_brushless);
+            this.Controls.Add(this.txt_brushless_pwm_right);
+            this.Controls.Add(this.txt_brushless_pwm_left);
             this.Controls.Add(this.btn_send_garbage_byte);
             this.Controls.Add(this.textBox7);
             this.Controls.Add(this.btn_read);
@@ -507,36 +406,19 @@
             this.Controls.Add(this.txt_target_orientation);
             this.Controls.Add(this.separator);
             this.Controls.Add(this.btn_fire_command);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.btnTargetRotationCommand);
-            this.Controls.Add(this.targetRotationCommandBox);
-            this.Controls.Add(this.targetRotationTextBox1);
-            this.Controls.Add(this.label9);
-            this.Controls.Add(this.label8);
-            this.Controls.Add(this.label7);
-            this.Controls.Add(this.vScrollBar5);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.vScrollBar4);
             this.Controls.Add(this.label5);
-            this.Controls.Add(this.textBox6);
+            this.Controls.Add(this.txt_gimbal_both_rotation);
             this.Controls.Add(this.vScrollBar3);
-            this.Controls.Add(this.textBox5);
-            this.Controls.Add(this.textBox4);
+            this.Controls.Add(this.txt_gimbal_right_rotation);
+            this.Controls.Add(this.txt_gimbal_left_rotation);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.vScrollBar2);
             this.Controls.Add(this.vScrollBar1);
-            this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.hScrollBar3);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lblBrushless2);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.hScrollBar2);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.hScrollBar1);
-            this.Controls.Add(this.btn_0);
+            this.Controls.Add(this.hScrollBar_right_brushless);
+            this.Controls.Add(this.hScrollBar_left_brushless);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -548,36 +430,19 @@
         #endregion
 
         private System.IO.Ports.SerialPort serialPort1;
-        private System.Windows.Forms.Button btn_0;
-        private System.Windows.Forms.HScrollBar hScrollBar1;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.HScrollBar hScrollBar2;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.HScrollBar hScrollBar_left_brushless;
+        private System.Windows.Forms.HScrollBar hScrollBar_right_brushless;
         private System.Windows.Forms.Label lblBrushless2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.HScrollBar hScrollBar3;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.VScrollBar vScrollBar1;
         private System.Windows.Forms.VScrollBar vScrollBar2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.TextBox textBox5;
+        private System.Windows.Forms.TextBox txt_gimbal_left_rotation;
+        private System.Windows.Forms.TextBox txt_gimbal_right_rotation;
         private System.Windows.Forms.VScrollBar vScrollBar3;
-        private System.Windows.Forms.TextBox textBox6;
+        private System.Windows.Forms.TextBox txt_gimbal_both_rotation;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.VScrollBar vScrollBar4;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.VScrollBar vScrollBar5;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.TextBox targetRotationTextBox1;
-        private System.Windows.Forms.TextBox targetRotationCommandBox;
-        private System.Windows.Forms.Button btnTargetRotationCommand;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button btn_fire_command;
         private System.Windows.Forms.Label separator;
         private System.Windows.Forms.TextBox txt_target_orientation;
@@ -594,6 +459,11 @@
         private System.Windows.Forms.TextBox textBox7;
         private System.Windows.Forms.Button btn_send_garbage_byte;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.TextBox txt_brushless_pwm_left;
+        private System.Windows.Forms.TextBox txt_brushless_pwm_right;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.HScrollBar hScrollBar_both_brushless;
+        private System.Windows.Forms.TextBox txt_brushless_pwm_both;
     }
 }
 

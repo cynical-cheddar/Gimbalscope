@@ -54,8 +54,9 @@ MotorController_c motorController_right;
 #define STATE_LOOPING_DEMO_RELOAD_COMMAND  4
 #define STATE_LOOPING_DEMO_RELOAD_LOOP  5
 
-// States define fire and reload behaviour
+// State defines listening behaviour
 #define STATE_LISTENING_MASTER 6
+// States define fire and reload behaviour
 #define STATE_FIRE_COMMAND  7
 #define STATE_FIRE_LOOP  8
 #define STATE_RELOAD_COMMAND  9
@@ -70,17 +71,32 @@ MotorController_c motorController_right;
 #define STATE_SETUP_ZERO_COMMAND 13
 #define STATE_SETUP_ZERO_LOOP 14
 
+// States define sinusoidal gimbal behaviour (not yet implemented)
+#define STATE_SINUSOIDAL_COMMAND 15
+#define STATE_SINUSOIDAL_LOOP 16
 
-#define STATE_REST  11
+// States define controlling brushless motor power
+#define STATE_BRUSHLESS_PWM_COMMAND 17
+#define STATE_BRUSHLESS_PWM_LOOP 18
+
+#define STATE_REST  19
 int STATE = 0;
 
 //======== COMMAND COMMUNICATION VARIABLES ==========//
+// GIMBALS //
 float fireTargetAngle = 0;
 float fireDegreesPerSecond = 0;
 byte firePrecision = 0;
-float reloadTargetAngle = 0;
+float reloadTargetAngle_left = 0;
+float reloadTargetAngle_right = 0;
 float reloadDegreesPerSecond = 0;
 byte reloadPrecision = 0;
+// CENTRE SERVO //
+
+// BRUSHLESS MOTORS //
+float brushlessLeftPWM = 0;
+float brushlessRightPWM = 0;
+
 
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 
@@ -130,8 +146,9 @@ void setup() {
 
   delay(10000);
   if(serialDebug)Serial.println("Begun");
-  brushless_motor_left.write(160);
-  brushless_motor_right.write(160);
+  brushless_motor_left.write(150);
+  brushless_motor_right.write(150);
+
   digitalWrite(LED_BUILTIN, LOW);
   STATE = STATE_LISTENING_MASTER;
 
@@ -176,68 +193,91 @@ bool SerialDecoder2(){
     byte motorType = message.charAt(0);
     byte motorID = message.charAt(1);
     byte functionID = message.charAt(2);
-    // gimbals
+    // GIMBAL MOTORS:
     if(motorType == '0'){
-      Serial.println("Fire and reload");
-      // fire and reload
-      if(functionID == '0'){
-        float message_fireTargetAngle = 60.0f;
-        float message_fireSpeed = 720.0f;
-        float message_firePrecision = 4.0f;
-        
-        float message_reloadTargetAngle = 0.0f;
-        float message_reloadSpeed = 30.0f;
-        float message_reloadPrecision = 1.0f;
-
+      // fire and reload both motors
+      if(functionID == '0' && motorID == '0'){
+        Serial.println("Fire and reload");
         int messageLength = message.length();
-
         String currentSubMessage = "";
         int parameterNumber = 0;
         bool firstParameter = true;
         
-        for (int i = 0; i < messageLength; i++){
-          if(message.charAt(i) == ','){
-            if(firstParameter){
-              firstParameter = false;
-              currentSubMessage = "";
-            }
-            else{
-              if(parameterNumber == 0) message_fireTargetAngle = currentSubMessage.toFloat();
-              else if(parameterNumber == 1) message_fireSpeed = currentSubMessage.toFloat();
-              else if(parameterNumber == 2) message_firePrecision = currentSubMessage.toFloat();
-              
-              else if(parameterNumber == 3) message_reloadTargetAngle = currentSubMessage.toFloat();
-              else if(parameterNumber == 4) message_reloadSpeed = currentSubMessage.toFloat();
-              else if(parameterNumber == 5) message_reloadPrecision = currentSubMessage.toFloat();  
-              currentSubMessage = "";
-              parameterNumber += 1;
-              
-            }
-          }
-          else{
-            currentSubMessage += message.charAt(i);          
-          }
-          
-        }
-        
-        
-        Serial.println(message_fireTargetAngle);
-        Serial.println(message_fireSpeed);
-        Serial.println(message_firePrecision);
+        fireTargetAngle = GetMessageParameter(0, message);
+        fireDegreesPerSecond = GetMessageParameter(1, message);
+        firePrecision = GetMessageParameter(2, message);
 
-        Serial.println(message_reloadTargetAngle);
-        Serial.println(message_reloadSpeed);
-        Serial.println(message_reloadPrecision);
-        
-        fireTargetAngle = message_fireTargetAngle;
-        fireDegreesPerSecond = message_fireSpeed;
-        firePrecision = message_firePrecision;
-        
-        reloadTargetAngle = message_reloadTargetAngle;
-        reloadDegreesPerSecond = message_reloadSpeed;
-        reloadPrecision = message_reloadPrecision;
+        reloadTargetAngle_left = GetMessageParameter(3, message);
+        reloadTargetAngle_right = GetMessageParameter(3, message);
+        reloadDegreesPerSecond = GetMessageParameter(4, message);
+        reloadPrecision = GetMessageParameter(5, message);
         STATE = STATE_FIRE_COMMAND;
         return;
+      }
+      // move both gimbal motors to a new base position
+      else if(functionID == '1' && motorID == '0'){
+        Serial.println("Setting gimbal position");
+            
+        reloadTargetAngle_left = GetMessageParameter(0, message);
+        reloadTargetAngle_right = GetMessageParameter(0, message);
+        reloadDegreesPerSecond = GetMessageParameter(1, message);
+        reloadPrecision = GetMessageParameter(2, message);
+
+        STATE = STATE_RELOAD_COMMAND;
+      }
+      // move the left gimbal motor to a new base position
+      else if(functionID == '1' && motorID == '1'){
+        Serial.println("Setting gimbal position");
+            
+        reloadTargetAngle_left = GetMessageParameter(0, message);
+        reloadDegreesPerSecond = GetMessageParameter(1, message);
+        reloadPrecision = GetMessageParameter(2, message);
+
+        STATE = STATE_RELOAD_COMMAND;
+      }
+      // move the right gimbal motor to a new base position
+      else if(functionID == '1' && motorID == '2'){
+        Serial.println("Setting gimbal position");
+            
+        reloadTargetAngle_right = GetMessageParameter(0, message);
+        reloadDegreesPerSecond = GetMessageParameter(1, message);
+        reloadPrecision = GetMessageParameter(2, message);
+
+        STATE = STATE_RELOAD_COMMAND;
+      }
+      // sinusoidal movement
+      else if(functionID == '2' && motorID == '0'){
+        Serial.println("Setting gimbal position");
+            
+        reloadTargetAngle_left = GetMessageParameter(0, message);
+        reloadTargetAngle_right = GetMessageParameter(0, message);
+        reloadDegreesPerSecond = GetMessageParameter(1, message);
+        reloadPrecision = GetMessageParameter(2, message);
+
+        STATE = STATE_RELOAD_COMMAND;
+      }
+    }
+    else if (motorType == '1'){
+      Serial.println("servo not yet implemented");
+    }
+    else if (motorType == '2'){
+      // set brushless pwm
+      if(functionID == '0'){
+        float newBrushlessPWM = GetMessageParameter(0, message);
+        // set for both motors
+        if(motorID == '0'){
+          brushlessLeftPWM = newBrushlessPWM;
+          brushlessRightPWM = newBrushlessPWM;
+        }
+        // set for left motor
+        else if(motorID == '1'){
+          brushlessLeftPWM = newBrushlessPWM;
+        }
+        // set for right motor
+        else if(motorID == '2'){
+          brushlessRightPWM = newBrushlessPWM;
+        }
+        STATE = STATE_BRUSHLESS_PWM_COMMAND;
       }
     }
     else{
@@ -363,7 +403,7 @@ void loop() {
       STATE = STATE_LOOPING_DEMO_FIRE_COMMAND;
     }
 
-    // ======= COMMAND RECEIVE TEST ========== //
+    // ======= SETUP AND COMMAND RECEIVE STATES ========== //
     // relevant states
     /*
     STATE_LISTENING_MASTER 6
@@ -382,13 +422,14 @@ void loop() {
         STATE = STATE_LISTENING_MASTER;
       }
     }
-    
+
     if(STATE == STATE_LISTENING_MASTER){
       
       SerialDecoder2();
       
     }
-    
+    // ========== FIRE AND RELOAD STATES ===========//
+   
     if(STATE == STATE_FIRE_COMMAND){
       digitalWrite(LED_BUILTIN, HIGH);
       motorController_right.ReceiveCommand(-fireTargetAngle, fireDegreesPerSecond, firePrecision);
@@ -402,8 +443,8 @@ void loop() {
     }
 
     if(STATE == STATE_RELOAD_COMMAND){
-      motorController_right.ReceiveCommand(reloadTargetAngle, reloadDegreesPerSecond, reloadPrecision);
-      motorController_left.ReceiveCommand(reloadTargetAngle, reloadDegreesPerSecond, reloadPrecision);
+      motorController_right.ReceiveCommand(reloadTargetAngle_right, reloadDegreesPerSecond, reloadPrecision);
+      motorController_left.ReceiveCommand(reloadTargetAngle_left, reloadDegreesPerSecond, reloadPrecision);
       STATE = STATE_RELOAD_LOOP;
     }
 
@@ -422,6 +463,18 @@ void loop() {
       if(motorController_right.doneCommand && motorController_left.doneCommand){
         STATE = STATE_LISTENING_MASTER;
       }
+    }
+
+    // ================ BRUSHLESS MOTOR CONTROL ================ //
+
+    if(STATE == STATE_BRUSHLESS_PWM_COMMAND){
+      brushless_motor_left.write(brushlessLeftPWM);
+      brushless_motor_right.write(brushlessRightPWM);
+      STATE = STATE_LISTENING_MASTER;
+    }
+    // used to lerp
+    if(STATE == STATE_BRUSHLESS_PWM_LOOP){
+      
     }
 
     
