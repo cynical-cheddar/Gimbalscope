@@ -1,12 +1,7 @@
-// this #ifndef stops this file
-// from being included mored than
-// once by the compiler. 
-#ifndef _KINEMATICS_H
-#define _KINEMATICS_H
 
 #include <Adafruit_MotorShield.h>
 #include "QuadratureEncoder.h"
-// Class to track robot position.
+
 class MotorController_c {
 
     
@@ -91,7 +86,7 @@ class MotorController_c {
     void SetTargetRPM(float newRPM){
       RPM_degrees_target = newRPM;
       // set current power via heuristic:
-      currentMotorPower = map(newRPM ,0, 1080, 22, 255);
+      currentMotorPower = map(newRPM ,0, 1080, 5, 255);
     }
 
     void SetTargetRotation(float newRotation){
@@ -212,7 +207,3 @@ class MotorController_c {
     }
 
 };
-
-
-
-#endif

@@ -210,11 +210,10 @@ namespace BrushlessPWMControllerGUI
 
             string firePrecisonString = txt_fire_precision.Text;
 
-            double reloadTargetAngle = 0;
-            reloadTargetAngle = Math.Round(reloadTargetAngle, 4);
+
+            string reloadTargetAngle = txt_reload_target_orientation.Text;
 
 
-            byte[] bytes_reloadTargetAngle = BitConverter.GetBytes(reloadTargetAngle);
             double reloadDegreesPerSecond = Single.Parse(txt_reload_speed.Text);
             reloadDegreesPerSecond = Math.Round(reloadDegreesPerSecond, 4);
             byte[] bytes_reloadDegreesPerSecond = BitConverter.GetBytes(reloadDegreesPerSecond);
@@ -232,7 +231,7 @@ namespace BrushlessPWMControllerGUI
                 bytes_reloadDegreesPerSecond[2], bytes_reloadDegreesPerSecond[3], reloadPrecision, endChar };
             */
 
-            string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireTargetAngle.ToString() + "," + fireDegreesPerSecond.ToString() + "," + firePrecisonString +  "," + reloadTargetAngle.ToString() + "," + reloadDegreesPerSecond.ToString() + "," + reloadPrecisionString + ",";
+            string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireTargetAngle.ToString() + "," + fireDegreesPerSecond.ToString() + "," + firePrecisonString +  "," + reloadTargetAngle + "," + reloadDegreesPerSecond.ToString() + "," + reloadPrecisionString + ",";
 
 
             System.Diagnostics.Debug.WriteLine("--btn_fire_command_Click--");
@@ -267,9 +266,9 @@ namespace BrushlessPWMControllerGUI
         {
             byte motorType = 2;
             byte functionID = 0;
-            string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + targetPWM.ToString() + ",";
+            string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + targetPWM.ToString() + "," + txt_interpolation_time_pwm.Text +",";
             System.Diagnostics.Debug.WriteLine("--brushless change --" + motorID.ToString());
-            //System.Diagnostics.Debug.WriteLine(commandString);
+            System.Diagnostics.Debug.WriteLine(commandString);
             byte[] utf8String = Encoding.UTF8.GetBytes(commandString);
 
             serialPort1.Write(utf8String, 0, utf8String.Length);
@@ -279,9 +278,9 @@ namespace BrushlessPWMControllerGUI
         int vScrollBar2_LastValue = 0;
         int vScrollBar3_LastValue = 0;
 
-        int hScrollBar_left_brushless_LastValue = 0;
-        int hScrollBar_right_brushless_LastValue = 0;
-        int hScrollBar_both_brushless_LastValue = 0;
+        int hScrollBar_left_brushless_LastValue = 70;
+        int hScrollBar_right_brushless_LastValue = 70;
+        int hScrollBar_both_brushless_LastValue = 70;
 
         private void timer1_Tick(object sender, EventArgs e)
         {

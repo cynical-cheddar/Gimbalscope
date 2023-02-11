@@ -2,19 +2,20 @@
    
 
 #include "MotorController.h"
+#include "BrushlessMotorController.h"
 #include "QuadratureEncoder.h"
 #include "MessageDecoder.h"
 #include <Servo.h>
-
-
+#include <Wire.h>
+// TEST VARIABLES FOR IMU DATA
+const int MPU = 0x68; // MPU6050 I2C address
 
 
 
 bool serialDebug = true;
 Adafruit_DCMotor *debugMotor;
 
-Servo brushless_motor_left; 
-Servo brushless_motor_right; 
+
 #define brushless_motor_pin_left 8
 #define brushless_motor_pin_right 9
 
@@ -44,7 +45,8 @@ long positionLeft  = -999;
 MotorController_c motorController_left;
 MotorController_c motorController_right;
 
-
+BrushlessMotorController_c brushlessMotorController_left;
+BrushlessMotorController_c brushlessMotorController_right;
 
 // DEFINE STATE MACHINE STATES:
 #define STATE_SETUP  0
@@ -96,16 +98,25 @@ byte reloadPrecision = 0;
 // BRUSHLESS MOTORS //
 float brushlessLeftPWM = 0;
 float brushlessRightPWM = 0;
+float brushlessInterpolationTime = 1.0f;
 
 
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 
 void setup() {
+  // WIRE IMU TEST
+  Wire.begin();                      // Initialize comunication
+  Wire.beginTransmission(MPU);       // Start communication with MPU6050 // MPU=0x68
+  Wire.write(0x6B);                  // Talk to the register 6B
+  Wire.write(0x00);                  // Make reset - place a 0 into the 6B register
+  Wire.endTransmission(true);        //end the transmission
+  // https://howtomechatronics.com/tutorials/arduino/arduino-and-mpu6050-accelerometer-and-gyroscope-tutorial/
   STATE = STATE_SETUP;
   Serial.begin(9600);           // set up Serial library at 9600 bps
-  
-  brushless_motor_left.attach(brushless_motor_pin_left);
-  brushless_motor_right.attach(brushless_motor_pin_right);
+
+  brushlessMotorController_left.SetUpMotor(brushless_motor_pin_left);
+  brushlessMotorController_right.SetUpMotor(brushless_motor_pin_right);
+
 
   if(serialDebug)Serial.println("begin...");
 
@@ -132,23 +143,24 @@ void setup() {
   if(serialDebug)Serial.println("Setting up brushless calibration");
 
   delay(100);
-  brushless_motor_left.writeMicroseconds(1060);
-  brushless_motor_right.writeMicroseconds(1060);
+  //brushlessMotorController_left.ForceWriteMicroSeconds(1060);
+  //brushlessMotorController_right.ForceWriteMicroSeconds(1060);
 
   delay(5000);
-  brushless_motor_left.writeMicroseconds(1700);
-  brushless_motor_right.writeMicroseconds(1700);
+  brushlessMotorController_left.ForceWriteMicroSeconds(1700);
+  brushlessMotorController_right.ForceWriteMicroSeconds(1700);
   delay(5000);
-  brushless_motor_left.writeMicroseconds(1060);
-  brushless_motor_right.writeMicroseconds(1060);
+  brushlessMotorController_left.ForceWriteMicroSeconds(1060);
+  brushlessMotorController_right.ForceWriteMicroSeconds(1060);
 
   
 
   delay(10000);
   if(serialDebug)Serial.println("Begun");
-  brushless_motor_left.write(150);
-  brushless_motor_right.write(150);
 
+  brushlessMotorController_left.ForceWritePwm(100);
+  brushlessMotorController_right.ForceWritePwm(100);
+  
   digitalWrite(LED_BUILTIN, LOW);
   STATE = STATE_LISTENING_MASTER;
 
@@ -264,10 +276,13 @@ bool SerialDecoder2(){
       // set brushless pwm
       if(functionID == '0'){
         float newBrushlessPWM = GetMessageParameter(0, message);
+        brushlessInterpolationTime = GetMessageParameter(1, message);
         // set for both motors
         if(motorID == '0'){
           brushlessLeftPWM = newBrushlessPWM;
           brushlessRightPWM = newBrushlessPWM;
+          Serial.println("pwm acknowledged");
+          Serial.println(newBrushlessPWM);
         }
         // set for left motor
         else if(motorID == '1'){
@@ -399,6 +414,12 @@ void loop() {
     posChangeRight = 0;
     // END UPDATE LOOP FOR MOTOR DRIVERS
 
+    // UPDATE LOOP FOR BRUSHLESS DRIVERS
+    brushlessMotorController_left.UpdateLoop();
+    brushlessMotorController_right.UpdateLoop();
+    // END UPDATE LOOP FOR BRUSHLESS DRIVERS
+
+    
     if(STATE == STATE_LOOPING_DEMO_MASTER){
       STATE = STATE_LOOPING_DEMO_FIRE_COMMAND;
     }
@@ -443,7 +464,7 @@ void loop() {
     }
 
     if(STATE == STATE_RELOAD_COMMAND){
-      motorController_right.ReceiveCommand(reloadTargetAngle_right, reloadDegreesPerSecond, reloadPrecision);
+      motorController_right.ReceiveCommand(-reloadTargetAngle_right, reloadDegreesPerSecond, reloadPrecision);
       motorController_left.ReceiveCommand(reloadTargetAngle_left, reloadDegreesPerSecond, reloadPrecision);
       STATE = STATE_RELOAD_LOOP;
     }
@@ -468,13 +489,17 @@ void loop() {
     // ================ BRUSHLESS MOTOR CONTROL ================ //
 
     if(STATE == STATE_BRUSHLESS_PWM_COMMAND){
-      brushless_motor_left.write(brushlessLeftPWM);
-      brushless_motor_right.write(brushlessRightPWM);
-      STATE = STATE_LISTENING_MASTER;
+      brushlessMotorController_left.ReceiveCommand(brushlessLeftPWM, brushlessInterpolationTime);
+      brushlessMotorController_right.ReceiveCommand(brushlessRightPWM, brushlessInterpolationTime);
+      
+      
+      STATE = STATE_BRUSHLESS_PWM_LOOP;
     }
     // used to lerp
     if(STATE == STATE_BRUSHLESS_PWM_LOOP){
-      
+      if(brushlessMotorController_left.doneCommand && brushlessMotorController_right.doneCommand){
+        STATE = STATE_LISTENING_MASTER;
+      }
     }
 
     

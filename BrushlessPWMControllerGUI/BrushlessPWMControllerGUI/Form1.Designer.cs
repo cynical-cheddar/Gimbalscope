@@ -64,6 +64,9 @@
             this.label2 = new System.Windows.Forms.Label();
             this.hScrollBar_both_brushless = new System.Windows.Forms.HScrollBar();
             this.txt_brushless_pwm_both = new System.Windows.Forms.TextBox();
+            this.txt_interpolation_time_pwm = new System.Windows.Forms.TextBox();
+            this.txt_reload_target_orientation = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // serialPort1
@@ -72,24 +75,26 @@
             // 
             // hScrollBar_left_brushless
             // 
+            this.hScrollBar_left_brushless.LargeChange = 4;
             this.hScrollBar_left_brushless.Location = new System.Drawing.Point(282, 121);
             this.hScrollBar_left_brushless.Maximum = 120;
             this.hScrollBar_left_brushless.Minimum = 50;
             this.hScrollBar_left_brushless.Name = "hScrollBar_left_brushless";
             this.hScrollBar_left_brushless.Size = new System.Drawing.Size(251, 30);
             this.hScrollBar_left_brushless.TabIndex = 2;
-            this.hScrollBar_left_brushless.Value = 50;
+            this.hScrollBar_left_brushless.Value = 70;
             this.hScrollBar_left_brushless.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar1_Scroll);
             // 
             // hScrollBar_right_brushless
             // 
+            this.hScrollBar_right_brushless.LargeChange = 4;
             this.hScrollBar_right_brushless.Location = new System.Drawing.Point(282, 213);
             this.hScrollBar_right_brushless.Maximum = 120;
             this.hScrollBar_right_brushless.Minimum = 50;
             this.hScrollBar_right_brushless.Name = "hScrollBar_right_brushless";
             this.hScrollBar_right_brushless.Size = new System.Drawing.Size(251, 30);
             this.hScrollBar_right_brushless.TabIndex = 7;
-            this.hScrollBar_right_brushless.Value = 50;
+            this.hScrollBar_right_brushless.Value = 70;
             this.hScrollBar_right_brushless.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar2_Scroll);
             // 
             // lblBrushless2
@@ -217,7 +222,7 @@
             // 
             // txt_target_orientation
             // 
-            this.txt_target_orientation.Location = new System.Drawing.Point(141, 499);
+            this.txt_target_orientation.Location = new System.Drawing.Point(141, 478);
             this.txt_target_orientation.Name = "txt_target_orientation";
             this.txt_target_orientation.Size = new System.Drawing.Size(100, 20);
             this.txt_target_orientation.TabIndex = 35;
@@ -226,7 +231,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(247, 499);
+            this.label10.Location = new System.Drawing.Point(247, 478);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(139, 13);
             this.label10.TabIndex = 36;
@@ -236,7 +241,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(247, 530);
+            this.label11.Location = new System.Drawing.Point(247, 509);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(109, 13);
             this.label11.TabIndex = 38;
@@ -244,7 +249,7 @@
             // 
             // txt_fire_speed
             // 
-            this.txt_fire_speed.Location = new System.Drawing.Point(141, 528);
+            this.txt_fire_speed.Location = new System.Drawing.Point(141, 507);
             this.txt_fire_speed.Name = "txt_fire_speed";
             this.txt_fire_speed.Size = new System.Drawing.Size(100, 20);
             this.txt_fire_speed.TabIndex = 37;
@@ -332,7 +337,7 @@
             // timer1
             // 
             this.timer1.Enabled = true;
-            this.timer1.Interval = 500;
+            this.timer1.Interval = 800;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // txt_brushless_pwm_left
@@ -364,13 +369,14 @@
             // 
             // hScrollBar_both_brushless
             // 
+            this.hScrollBar_both_brushless.LargeChange = 4;
             this.hScrollBar_both_brushless.Location = new System.Drawing.Point(282, 305);
             this.hScrollBar_both_brushless.Maximum = 120;
             this.hScrollBar_both_brushless.Minimum = 50;
             this.hScrollBar_both_brushless.Name = "hScrollBar_both_brushless";
             this.hScrollBar_both_brushless.Size = new System.Drawing.Size(251, 30);
             this.hScrollBar_both_brushless.TabIndex = 51;
-            this.hScrollBar_both_brushless.Value = 50;
+            this.hScrollBar_both_brushless.Value = 70;
             // 
             // txt_brushless_pwm_both
             // 
@@ -381,11 +387,39 @@
             this.txt_brushless_pwm_both.TabIndex = 53;
             this.txt_brushless_pwm_both.Text = "0";
             // 
+            // txt_interpolation_time_pwm
+            // 
+            this.txt_interpolation_time_pwm.Location = new System.Drawing.Point(560, 54);
+            this.txt_interpolation_time_pwm.Name = "txt_interpolation_time_pwm";
+            this.txt_interpolation_time_pwm.Size = new System.Drawing.Size(41, 20);
+            this.txt_interpolation_time_pwm.TabIndex = 54;
+            this.txt_interpolation_time_pwm.Text = "1";
+            // 
+            // txt_reload_target_orientation
+            // 
+            this.txt_reload_target_orientation.Location = new System.Drawing.Point(141, 533);
+            this.txt_reload_target_orientation.Name = "txt_reload_target_orientation";
+            this.txt_reload_target_orientation.Size = new System.Drawing.Size(100, 20);
+            this.txt_reload_target_orientation.TabIndex = 55;
+            this.txt_reload_target_orientation.Text = "0";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(247, 540);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(129, 13);
+            this.label6.TabIndex = 56;
+            this.label6.Text = "Reload Target Orientation";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(792, 701);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.txt_reload_target_orientation);
+            this.Controls.Add(this.txt_interpolation_time_pwm);
             this.Controls.Add(this.txt_brushless_pwm_both);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.hScrollBar_both_brushless);
@@ -464,6 +498,9 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.HScrollBar hScrollBar_both_brushless;
         private System.Windows.Forms.TextBox txt_brushless_pwm_both;
+        private System.Windows.Forms.TextBox txt_interpolation_time_pwm;
+        private System.Windows.Forms.TextBox txt_reload_target_orientation;
+        private System.Windows.Forms.Label label6;
     }
 }
 
