@@ -38,7 +38,7 @@
 #define RFM69_IRQ     PA15    // "C"
 #define RFM69_IRQN    RFM69_IRQ
 */
-bool pc_serial = false;
+bool pc_serial = true;
 // Singleton instance of the radio driver
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
 
@@ -47,7 +47,7 @@ int16_t packetnum = 0;  // packet counter, we increment per xmission
 void setup() 
 {
   delay(2000);
-  Serial.begin(9600);
+  if(pc_serial)Serial.begin(9600);
   Serial1.begin(9600);
   while (!Serial1) { delay(10); } // wait until Serial1 console is open, remove if not tethered to computer
   if(pc_serial) while (!Serial) { delay(10); } // wait until Serial1 console is open, remove if not tethered to computer
@@ -74,7 +74,7 @@ void setup()
     while (1);
   }
   
-  Serial.println("RFM69 radio init OK!");
+  if(pc_serial)Serial.println("RFM69 radio init OK!");
   
   // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM (for low power module)
   // No encryption
@@ -111,8 +111,8 @@ void loop() {
 
  // receive commands here
  // ============ RX ================ //
- if (rf69.available() && Serial1) {
-    //Serial1.println("available");
+ if (rf69.available()) {
+    Serial1.println("available");
     //Serial.println("y");
     // Should be a message for us now   
     uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
@@ -122,7 +122,7 @@ void loop() {
       buf[len] = 0;
       // print results to mega
       Serial1.println((char*)buf);
-     // Serial.println((char*)buf);
+      if(pc_serial)Serial.println((char*)buf);
       if (true) {
         // Send a reply!
         uint8_t data[] = "acknowledged";
@@ -134,10 +134,6 @@ void loop() {
       //Serial1.println("Receive failed");
     }
   }
-  else{
-    //Serial.println("n");
-    //Serial1.println("not available");
-  }
 
   // ================= TX ==============//
 
@@ -147,11 +143,12 @@ void loop() {
     // telemetry in #xxx,yyy,zzz format - euler rotations as integer
     // SendTelemetryPacket(String telemetryPacket)
 
+  
   if(Serial1.available()){
    
-  String  message;
+    String  message;
     while(Serial1.available() > 0){
-      delay(10);
+      delay(5);
       digitalWrite(LED_BUILTIN, HIGH);
       if (Serial1.available() >0) {
         char c = Serial1.read();  //gets one byte from serial buffer
@@ -168,7 +165,9 @@ void loop() {
         //Serial.println("Invalid message " + message);
       }
     }
-  }
+    }
+    
+    
   
 }
 

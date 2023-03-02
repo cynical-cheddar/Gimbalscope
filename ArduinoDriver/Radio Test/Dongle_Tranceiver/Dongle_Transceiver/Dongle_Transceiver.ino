@@ -16,6 +16,7 @@
 // Change to 434.0 or other frequency, must match RX's freq!
 #define RF69_FREQ 915.0
 
+#define EMERGENCY_PIN 6
 
 #define RFM69_INT     3  // 
 #define RFM69_CS      4  //
@@ -47,7 +48,7 @@ void setup()
 {
   Serial.begin(9600);
   //while (!Serial) { delay(1); } // wait until serial console is open, remove if not tethered to computer
-
+  pinMode(EMERGENCY_PIN, INPUT_PULLUP);
   pinMode(LED, OUTPUT);     
   pinMode(RFM69_RST, OUTPUT);
   digitalWrite(RFM69_RST, LOW);
@@ -119,43 +120,64 @@ void SendCommandPacket(String radioPacket, int timeout){
   }
 }
 
+int lastButtonValue = 0;
+
 void loop() {
-  delay(10);  // Wait 1 second between transmits, could also 'sleep' here!
+  delay(10);  
 
-  // =========== TX ==============//
-  // read serial from pc for a command
-    // if we have a valid command, send it via radio - wait for acknowledgement
-      // SendCommandPacket(command string, timeout)
-  String  message;
-  while(Serial.available() > 0){
-    delay(5);
-    digitalWrite(LED_BUILTIN, HIGH);
-    if (Serial.available() >0) {
-      char c = Serial.read();  //gets one byte from serial buffer
-      message += c; //makes the string readString
-    } 
-  }
-  if(message != ""){
-    SendCommandPacket(message, 500);
-  }
-  
 
-  // =========== RX ============= //
-  // check attached transceiver for incoming telemetry
-  // telemetry should start with a # character
-  // for now, let's not bother doing acknowledgements with telemetry
-  if(rf69.available()){
-    uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
-    uint8_t len = sizeof(buf);
-    if (rf69.recv(buf, &len)) {
-    if (!len) return;
-    buf[len] = 0;
-    if(buf[0] == '#')Serial.println((char*)buf);
+
+  // EMERGENCY STOP:
+
+  int buttonValue = digitalRead(EMERGENCY_PIN);
+  if(lastButtonValue != buttonValue){
+     if (buttonValue == LOW){
+        Serial.println("button 0");
+        // restore operation code
+        buttonValue = 0;
+        SendCommandPacket("400,000", 500);
+     } else {
+        Serial.println("button 1");
+        //EMERGENCY STOP CODE
+        buttonValue = 1;
+        SendCommandPacket("300,000", 500);
+     }
+     lastButtonValue = buttonValue;
+     delay(1000);
+  }
+      // =========== TX ==============//
+      // read serial from pc for a command
+        // if we have a valid command, send it via radio - wait for acknowledgement
+          // SendCommandPacket(command string, timeout)
+      String  message;
+      while(Serial.available() > 0){
+        delay(5);
+        digitalWrite(LED_BUILTIN, HIGH);
+        if (Serial.available() >0) {
+          
+          char c = Serial.read();  //gets one byte from serial buffer
+          //Serial.print(c);
+          message += c; //makes the string readString
+        } 
+      }
+      if(message != ""){
+        SendCommandPacket(message, 500);
+      }
+      
     
-
+      // =========== RX ============= //
+      // check attached transceiver for incoming telemetry
+      // telemetry should start with a # character
+      // for now, let's not bother doing acknowledgements with telemetry
+      if(rf69.available()){
+        uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
+        uint8_t len = sizeof(buf);
+        if (rf69.recv(buf, &len)) {
+        if (!len) return;
+        buf[len] = 0;
+        if(buf[0] == '#')Serial.println((char*)buf);
+      
+      
+    }
   }
-  
-  
-  
-}
 }

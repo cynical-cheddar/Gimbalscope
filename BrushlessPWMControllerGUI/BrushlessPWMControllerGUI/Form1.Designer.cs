@@ -71,7 +71,7 @@
             // 
             // serialPort1
             // 
-            this.serialPort1.PortName = "COM7";
+            this.serialPort1.PortName = "COM11";
             // 
             // hScrollBar_left_brushless
             // 

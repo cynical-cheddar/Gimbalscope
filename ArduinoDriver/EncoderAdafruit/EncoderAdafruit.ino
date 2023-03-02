@@ -5,10 +5,14 @@
 #include "BrushlessMotorController.h"
 #include "QuadratureEncoder.h"
 #include "MessageDecoder.h"
+#include "GyroscopeController.h"
+
 #include <Servo.h>
-#include <Wire.h>
+
+#define TRIGGER_PIN 10
+//#include <Wire.h>
 // TEST VARIABLES FOR IMU DATA
-const int MPU = 0x68; // MPU6050 I2C address
+
 
 
 
@@ -25,10 +29,10 @@ int ServoPos = 0;    // variable to store the servo position
 volatile float RPM = 0;
 volatile uint32_t lastA = 0;
 
-Encoders leftEncoder(18,19);
-Encoders rightEncoder(2,3);
+Encoders leftEncoder(2,3);
+Encoders rightEncoder(18,19);
 
-float targetRotation = 90.0f;
+float targetRotation = 0.0f;
 
 int pos = 0;
 
@@ -81,7 +85,14 @@ BrushlessMotorController_c brushlessMotorController_right;
 #define STATE_BRUSHLESS_PWM_COMMAND 17
 #define STATE_BRUSHLESS_PWM_LOOP 18
 
+// States define rest
 #define STATE_REST  19
+
+// Emergency stop / resume states
+#define STATE_EMERGENCY_STOP 20
+#define STATE_EMERGENCY_RESUME 21
+
+
 int STATE = 0;
 
 //======== COMMAND COMMUNICATION VARIABLES ==========//
@@ -104,15 +115,24 @@ float brushlessInterpolationTime = 1.0f;
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 
 void setup() {
+  delay (3000);
   // WIRE IMU TEST
-  Wire.begin();                      // Initialize comunication
-  Wire.beginTransmission(MPU);       // Start communication with MPU6050 // MPU=0x68
-  Wire.write(0x6B);                  // Talk to the register 6B
-  Wire.write(0x00);                  // Make reset - place a 0 into the 6B register
-  Wire.endTransmission(true);        //end the transmission
-  // https://howtomechatronics.com/tutorials/arduino/arduino-and-mpu6050-accelerometer-and-gyroscope-tutorial/
+  if(serialDebug)Serial.begin(9600);           // set up Serial library at 9600 bps
+  if(serialDebug){
+    while (!Serial) { delay(10); Serial.println("no serial");} // wait until Serial3 console is open, remove if not tethered to computer
+    Serial.println("serial done");
+  }
+
+  AFMS.begin();
+  Serial.println("afms begin");
+  
+  
+  Serial3.begin(9600);           // set up Serial library at 9600 bps
+  while (!Serial3) { delay(10); if(serialDebug)Serial.println("no Serial3!"); } // wait until Serial3 console is open
+  
   STATE = STATE_SETUP;
-  Serial.begin(9600);           // set up Serial library at 9600 bps
+  
+  pinMode(TRIGGER_PIN, INPUT_PULLUP);
 
   brushlessMotorController_left.SetUpMotor(brushless_motor_pin_left);
   brushlessMotorController_right.SetUpMotor(brushless_motor_pin_right);
@@ -125,9 +145,11 @@ void setup() {
   //SetupEncoders();
   pinMode(LED_BUILTIN, OUTPUT);
  // digitalWrite(LED_BUILTIN, LOW);
+ 
   delay(1000);
   if(serialDebug)Serial.println("done left a");
   motorController_left.AFMS = AFMS;
+  if(serialDebug)Serial.println("done left a pt 2");
   motorController_left.SetUpMotorShield();
   if(serialDebug)Serial.println("done left b");
   motorController_left.SetUpMotor(1);
@@ -138,10 +160,12 @@ void setup() {
   motorController_right.SetUpMotorShield();
   if(serialDebug)Serial.println("done right b");
   motorController_right.SetUpMotor(2);
-  motorController_left.targetRotation = targetRotation;
+  motorController_right.targetRotation = targetRotation;
 
+  
   if(serialDebug)Serial.println("Setting up brushless calibration");
 
+  /*
   delay(100);
   //brushlessMotorController_left.ForceWriteMicroSeconds(1060);
   //brushlessMotorController_right.ForceWriteMicroSeconds(1060);
@@ -152,14 +176,17 @@ void setup() {
   delay(5000);
   brushlessMotorController_left.ForceWriteMicroSeconds(1060);
   brushlessMotorController_right.ForceWriteMicroSeconds(1060);
+  */
 
+  /* gyroscope */
+  SetupGyroscope();
   
-
-  delay(10000);
+  delay(1000);
+  //delay(10000);
   if(serialDebug)Serial.println("Begun");
 
-  brushlessMotorController_left.ForceWritePwm(100);
-  brushlessMotorController_right.ForceWritePwm(100);
+  //brushlessMotorController_left.ForceWritePwm(100);
+  //brushlessMotorController_right.ForceWritePwm(100);
   
   digitalWrite(LED_BUILTIN, LOW);
   STATE = STATE_LISTENING_MASTER;
@@ -179,25 +206,43 @@ bool up = true;
 
 //============================================ DECODER SECTION ========================================//
 
+void SerialEmergencyPeek(){
+  char c = 0;
+  if(Serial3.available() > 0){
+    delay(3);
+    digitalWrite(LED_BUILTIN, HIGH);
+    char c = Serial3.peek();  //gets one byte from serial buffer
+  }
+  if(c == '3'){
+    STATE = STATE_EMERGENCY_STOP;
+    Serial3.println("###EMERGENCY STOP");
+  }
+  else if (c == '4'){
+    STATE = STATE_EMERGENCY_RESUME;
+  }
+}
+
+
 bool SerialDecoder2(){
 
   // put your main code here, to run repeatedly:
   bool validMessage = false;
   // we shall set max buffer size to be 32 bytes
   String  message;
-  while(Serial.available() > 0){
-    delay(5);
+  
+  while(Serial3.available() > 0){
+    delay(3);
     digitalWrite(LED_BUILTIN, HIGH);
-    if (Serial.available() >0) {
-      char c = Serial.read();  //gets one byte from serial buffer
+    if (Serial3.available() >0) {
+      char c = Serial3.read();  //gets one byte from serial buffer
       message += c; //makes the string readString
     } 
   }
   digitalWrite(LED_BUILTIN, LOW);
   // now decode the message
   if(message != ""){
-    Serial.println(message);
-    delay(100);
+    if(serialDebug)Serial.println(message);
+    delay(50);
     validMessage = true;
   }
   if(validMessage){
@@ -209,7 +254,7 @@ bool SerialDecoder2(){
     if(motorType == '0'){
       // fire and reload both motors
       if(functionID == '0' && motorID == '0'){
-        Serial.println("Fire and reload");
+        if(serialDebug)Serial.println("Fire and reload");
         int messageLength = message.length();
         String currentSubMessage = "";
         int parameterNumber = 0;
@@ -228,7 +273,7 @@ bool SerialDecoder2(){
       }
       // move both gimbal motors to a new base position
       else if(functionID == '1' && motorID == '0'){
-        Serial.println("Setting gimbal position");
+        if(serialDebug)Serial.println("Setting gimbal position");
             
         reloadTargetAngle_left = GetMessageParameter(0, message);
         reloadTargetAngle_right = GetMessageParameter(0, message);
@@ -239,7 +284,7 @@ bool SerialDecoder2(){
       }
       // move the left gimbal motor to a new base position
       else if(functionID == '1' && motorID == '1'){
-        Serial.println("Setting gimbal position");
+        if(serialDebug)Serial.println("Setting gimbal position");
             
         reloadTargetAngle_left = GetMessageParameter(0, message);
         reloadDegreesPerSecond = GetMessageParameter(1, message);
@@ -249,7 +294,7 @@ bool SerialDecoder2(){
       }
       // move the right gimbal motor to a new base position
       else if(functionID == '1' && motorID == '2'){
-        Serial.println("Setting gimbal position");
+        if(serialDebug)Serial.println("Setting gimbal position");
             
         reloadTargetAngle_right = GetMessageParameter(0, message);
         reloadDegreesPerSecond = GetMessageParameter(1, message);
@@ -259,7 +304,7 @@ bool SerialDecoder2(){
       }
       // sinusoidal movement
       else if(functionID == '2' && motorID == '0'){
-        Serial.println("Setting gimbal position");
+        if(serialDebug)Serial.println("Setting gimbal position");
             
         reloadTargetAngle_left = GetMessageParameter(0, message);
         reloadTargetAngle_right = GetMessageParameter(0, message);
@@ -270,7 +315,7 @@ bool SerialDecoder2(){
       }
     }
     else if (motorType == '1'){
-      Serial.println("servo not yet implemented");
+      if(serialDebug)Serial.println("servo not yet implemented");
     }
     else if (motorType == '2'){
       // set brushless pwm
@@ -281,8 +326,8 @@ bool SerialDecoder2(){
         if(motorID == '0'){
           brushlessLeftPWM = newBrushlessPWM;
           brushlessRightPWM = newBrushlessPWM;
-          Serial.println("pwm acknowledged");
-          Serial.println(newBrushlessPWM);
+          if(serialDebug)Serial.println("pwm acknowledged");
+          if(serialDebug)Serial.println(newBrushlessPWM);
         }
         // set for left motor
         else if(motorID == '1'){
@@ -296,105 +341,46 @@ bool SerialDecoder2(){
       }
     }
     else{
-      Serial.println("motor not yet implemented");
+      if(serialDebug)Serial.println("motor not yet implemented");
     }
   }
-  /*
-  byte motorType = message[0];
-  byte motorID = message[1];
-  byte functionID = message[2];
-
-  int endByteIndex = message_pos;
-  message_pos = 0;
-
-  // failure conditions
-  if(motorType > 2) return false;
-  if(motorID > 2) return false;
-  if(functionID > 1) return false;
-  Serial.println("Got send some data");
-  // gimbal motors
-  if(motorType == 0){
-    // specific motor
-    
-    // FIRE AND RELOAD - expect 6 parameters
-    if(functionID == 0){
-      int j = 0;
-      for (int i = 3; i < endByteIndex; i++){
-        parameters[j] = message[i];
-        j++;
-      }
-
-      //if (motorID == ){
-      // EXTRACT VARIABLES from PARAMETERS
-      // (target angle, degrees per second, precision) x 2
-      // 4 bytes per float
-      // (4 + 4 + 1) * 2 = 18 bytes
-      if(serialDebug)Serial.println("Doing fire command");
-      fireTargetAngle = 0;
-      uint8_t bytes[4] = {  parameters[0],  parameters[1],  parameters[2], parameters[3]}; // fill this array with the four bytes you received
-      static_assert(sizeof(float) == 4, "float size is expected to be 4 bytes");
-      memcpy (&fireTargetAngle, bytes, 4);
-      
-      fireDegreesPerSecond = 0;
-      uint8_t bytes_2[4] = {  parameters[4],  parameters[5],  parameters[6], parameters[7]}; // fill this array with the four bytes you received
-      static_assert(sizeof(float) == 4, "float size is expected to be 4 bytes");
-      memcpy (&fireDegreesPerSecond, bytes, 4);
-
-        
-      firePrecision = parameters[8];
-
-      reloadTargetAngle = 0;
-      uint8_t bytes_3[4] = {  parameters[9],  parameters[10],  parameters[11], parameters[12]}; // fill this array with the four bytes you received
-      static_assert(sizeof(float) == 4, "float size is expected to be 4 bytes");
-      memcpy (&reloadTargetAngle, bytes, 4);
-      
-      reloadDegreesPerSecond = 0;
-      uint8_t bytes_4[4] = {  parameters[13],  parameters[14],  parameters[15], parameters[16]}; // fill this array with the four bytes you received
-      static_assert(sizeof(float) == 4, "float size is expected to be 4 bytes");
-      memcpy (&reloadDegreesPerSecond, bytes, 4);
-        
-      reloadPrecision = parameters[17];
-      // advance state
-      STATE = STATE_FIRE_COMMAND;
-      // return true
-      return true;
-    }
-
-
-
-    
-    // move to position - expect 3 parameters
-    if(functionID == 1){
-      
-    }
-    
-  }
-  // mid servo
-  else if(motorType == 1){
-    
-  }
-  //brushless motors
-  else if(motorType == 2){
-    
-  }
-  */
 }
 
 
-
+int buttonStatus = 0;
 // ======================== END DECODER SECTION ========================================//
 
-
+int generate_telemetry_delay_ms = 500;
+long target_time = 0;
 
 void loop() {
-    //if(Serial.available()){
-      //SerialDecoder();
-    //}
+  /*
+    // garbage telemetry for testing
+   if(millis() > target_time){
+    target_time = millis() + generate_telemetry_delay_ms;
+    String telemetry = "#" + String(random(0,360)) + "," + String(random(0,360)) + "," + String(random(0,360)) + ",";
+    Serial3.println(telemetry);
 
+  }
+  */
+  int pinValue = digitalRead(TRIGGER_PIN);
+  
+  if(buttonStatus != pinValue){
+    buttonStatus = pinValue;
+    if(serialDebug)Serial.println(buttonStatus);
+  }
+  
 
-
-
-    
+    // Gyroscope
+    GyroscopeUpdateLoop();
+    // Gyro telemetry
+    if(millis() > target_time){
+      target_time = millis() + generate_telemetry_delay_ms;
+      String telemetry = "#" + String((int)(Gyro_X*57.2958)) + "," + String((int)(Gyro_Y*57.2958)) + "," + String((int)(Gyro_Z*57.2958)) + ",";
+      //String telemetry = "#000,000,000,";
+      Serial3.println(telemetry);
+      if(serialDebug)Serial.println(telemetry);
+    }
   
     //Serial.println("serialAvailable");
     digitalWrite(LED_BUILTIN, LOW);
@@ -419,7 +405,21 @@ void loop() {
     brushlessMotorController_right.UpdateLoop();
     // END UPDATE LOOP FOR BRUSHLESS DRIVERS
 
-    
+
+
+    // EMERGENCY STOP CODE:
+    SerialEmergencyPeek();
+
+    if(STATE == STATE_EMERGENCY_STOP){
+      motorController_right.EmergencyStop();
+      motorController_left.EmergencyStop();
+
+      brushlessMotorController_left.ReceiveCommand(50, 1);
+      brushlessMotorController_right.ReceiveCommand(50, 1);
+      if(serialDebug)Serial.println("EMERGENCY STOP");
+    }
+
+    // ======= ENTER DEMO MODE (DEPRECATED) ========= //
     if(STATE == STATE_LOOPING_DEMO_MASTER){
       STATE = STATE_LOOPING_DEMO_FIRE_COMMAND;
     }
@@ -453,6 +453,8 @@ void loop() {
    
     if(STATE == STATE_FIRE_COMMAND){
       digitalWrite(LED_BUILTIN, HIGH);
+  
+      if(serialDebug)Serial.println(String(fireTargetAngle) + " " + String(fireDegreesPerSecond)+ " " + String( firePrecision ));
       motorController_right.ReceiveCommand(-fireTargetAngle, fireDegreesPerSecond, firePrecision);
       motorController_left.ReceiveCommand(fireTargetAngle, fireDegreesPerSecond, firePrecision);
       STATE = STATE_FIRE_LOOP;
