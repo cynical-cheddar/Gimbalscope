@@ -23,28 +23,22 @@ Encoders::Encoders(byte pinA, byte pinB){
         enableInterrupt(_encoderPINA,  interruptEncoder2, CHANGE);  
         _instances[1] = this;
         break;
-     case 3:
-        enableInterrupt(_encoderPINB, interruptEncoder3, CHANGE);
-        enableInterrupt(_encoderPINA,  interruptEncoder3, CHANGE); 
-        _instances[2] = this; 
-        break;
-     case 4:
-        enableInterrupt(_encoderPINB, interruptEncoder4, CHANGE);
-        enableInterrupt(_encoderPINA,  interruptEncoder4, CHANGE);  
-        _instances[3] = this;
-        break;
-   }
+}
 }
 
+volatile short EncoderPhaseA = 0;
+volatile short EncoderPhaseB = 0;
 
+volatile short currentEncoded = 0;
+volatile short sum = 0;
 
 
 void Encoders::encoderCount(){
-  int EncoderPhaseA = digitalRead(this->_encoderPINA);  // MSB
-  int EncoderPhaseB = digitalRead(this->_encoderPINB);  // LSB
+  EncoderPhaseA = digitalRead(this->_encoderPINA);  // MSB
+  EncoderPhaseB = digitalRead(this->_encoderPINB);  // LSB
 
-  int currentEncoded = (EncoderPhaseA << 1) | EncoderPhaseB;
-  int sum = (this->_lastEncoded << 2) | currentEncoded;
+  currentEncoded = (EncoderPhaseA << 1) | EncoderPhaseB;
+  sum = (this->_lastEncoded << 2) | currentEncoded;
   switch(sum){
     case 0b0001:
     case 0b0111:
@@ -65,13 +59,13 @@ void Encoders::encoderCount(){
   this->_lastEncoded = currentEncoded;
 }
 
-long Encoders::getEncoderCount(){
+short Encoders::getEncoderCount(){
   return _encoderCount;
 }
-void Encoders::setEncoderCount(long setEncoderVal){
+void Encoders::setEncoderCount(short setEncoderVal){
   this->_encoderCount = setEncoderVal;
 }
 
-long Encoders::getEncoderErrorCount(){
+short Encoders::getEncoderErrorCount(){
   return _encoderErrors;
 }

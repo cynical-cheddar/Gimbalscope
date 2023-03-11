@@ -16,28 +16,21 @@ class Encoders{
       if(Encoders::_instances[1] != NULL)
       Encoders::_instances[1]->encoderCount();
     }
-    static void interruptEncoder3(){
-      if(Encoders::_instances[2] != NULL)
-      Encoders::_instances[2]->encoderCount();
-    }
-    static void interruptEncoder4(){
-      if(Encoders::_instances[3] != NULL)
-      Encoders::_instances[3]->encoderCount();
-    }
+
     
     void encoderCount();
-    long getEncoderCount();
-    void setEncoderCount(long);
-    long getEncoderErrorCount();
+    short getEncoderCount();
+    void setEncoderCount(short);
+    short getEncoderErrorCount();
     static Encoders *_instances[MAX_NUM_ENCODERS];
     
   private:
     static uint8_t _whichEncoder;
     uint8_t _encoderPINA;
     uint8_t _encoderPINB;
-    volatile long _encoderCount = 0;
-    volatile int _lastEncoded = 0;
-    volatile long _encoderErrors = 0;
+    volatile short _encoderCount = 0;
+    volatile short _lastEncoded = 0;
+    volatile short _encoderErrors = 0;
 };
 
 #endif

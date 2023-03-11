@@ -50,7 +50,7 @@ void setup()
   if(pc_serial)Serial.begin(9600);
   Serial1.begin(9600);
   while (!Serial1) { delay(10); } // wait until Serial1 console is open, remove if not tethered to computer
-  if(pc_serial) while (!Serial) { delay(10); } // wait until Serial1 console is open, remove if not tethered to computer
+  //if(pc_serial) while (!Serial) { delay(10); } // wait until Serial1 console is open, remove if not tethered to computer
   delay(200);
   if(pc_serial) Serial.println("Begin");
   
@@ -112,7 +112,7 @@ void loop() {
  // receive commands here
  // ============ RX ================ //
  if (rf69.available()) {
-    Serial1.println("available");
+    
     //Serial.println("y");
     // Should be a message for us now   
     uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
@@ -142,7 +142,6 @@ void loop() {
   // if serial has valid telemetry data (starts with # character):
     // telemetry in #xxx,yyy,zzz format - euler rotations as integer
     // SendTelemetryPacket(String telemetryPacket)
-
   
   if(Serial1.available()){
    

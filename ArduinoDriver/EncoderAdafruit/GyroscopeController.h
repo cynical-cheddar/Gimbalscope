@@ -5,15 +5,15 @@
 
 Adafruit_L3GD20_Unified gyro = Adafruit_L3GD20_Unified(20);
 
-double GyroErrorX = 0;
-double GyroErrorY = 0;
-double GyroErrorZ = 0;
+float GyroErrorX = 0;
+float GyroErrorY = 0;
+float GyroErrorZ = 0;
 
-double Gyro_X = 0;
-double Gyro_Y = 0;
-double Gyro_Z = 0;
+float Gyro_X = 0;
+float Gyro_Y = 0;
+float Gyro_Z = 0;
 
-double lastTime = 0;
+float lastTime = 0;
 
 void displaySensorDetails()
 {
@@ -31,11 +31,15 @@ void displaySensorDetails()
   delay(500);
 }
 void calculate_IMU_error() {
-  double GyroX = 0;
-  double GyroY = 0;
-  double GyroZ = 0;
+
+  Gyro_X = 0;
+  Gyro_Y = 0;
+  Gyro_Z = 0;
+  float GyroX = 0;
+  float GyroY = 0;
+  float GyroZ = 0;
   int c = 0;
-  int samples = 10000;
+  int samples = 200;
 
   while (c < samples) {
     sensors_event_t event; 
@@ -86,9 +90,9 @@ void GyroscopeUpdateLoop()
   sensors_event_t event; 
   gyro.getEvent(&event);
   
-  double dX = event.gyro.x - GyroErrorX;
-  double dY = event.gyro.y - GyroErrorY;
-  double dZ = event.gyro.z - GyroErrorZ;
+  float dX = event.gyro.x - GyroErrorX;
+  float dY = event.gyro.y - GyroErrorY;
+  float dZ = event.gyro.z - GyroErrorZ;
 
   // angles are measured in radians 
 

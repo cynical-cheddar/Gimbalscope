@@ -15,6 +15,9 @@ public class SerialCommunicator : MonoBehaviour {
     int rightBrushlessLastValue = 70;
     int dualBrushlessLastValue = 70;
 
+    
+    int servoLastValue = 90;
+
     public Slider leftGimbalSlider;
     public Slider rightGimbalSlider;
     public Slider dualGimbalSlider;
@@ -29,6 +32,9 @@ public class SerialCommunicator : MonoBehaviour {
     public Text leftBrushlessText;
     public Text rightBrushlessText;
     public Text dualBrushlessText;
+
+    public Slider servoSlider;
+    public Text servoText;
 
 
     public InputField targetOrientationField;
@@ -129,6 +135,17 @@ public class SerialCommunicator : MonoBehaviour {
         Debug.Log(commandString);
     }
 
+    public void btn_zero_gimbals_command_Click()
+    {
+        byte motorType = 0;
+        byte motorID = 0;
+        byte functionID = 3;
+
+        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + "0000";
+        Debug.Log(commandString);
+        serialDuplexManager.SendMessageViaSerial(commandString);
+    }
+
     public void btn_fire_command_Click()
     {
         byte motorType = 0;
@@ -162,15 +179,24 @@ public class SerialCommunicator : MonoBehaviour {
 
 
         System.Diagnostics.Debug.WriteLine("--btn_fire_command_Click--");
-        //System.Diagnostics.Debug.WriteLine(commandString);
-        byte[] utf8String = Encoding.UTF8.GetBytes(commandString);
+
         serialDuplexManager.SendMessageViaSerial(commandString);
 
         Debug.Log(commandString);
     }
 
 
+    private void SetServoAngle(int angle)
+    {
+        byte motorType = 1;
+        byte motorID = 0;
+        byte functionID = 0;
 
+        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + angle.ToString() + ",";
+        Debug.Log(commandString);
+        serialDuplexManager.SendMessageViaSerial(commandString);
+        Debug.Log(commandString);
+    }
     private void SetBrushlessPWM(byte motorID, float targetPWM)
     {
         byte motorType = 2;
@@ -194,15 +220,38 @@ public class SerialCommunicator : MonoBehaviour {
             {
                 if (message[0] == '#')
                 {
-                    //Debug.Log(message);
-                    string telemetry = message.Remove(0, 1);
-                    string[] orientations = telemetry.Split(',');
-                    Debug.Log(telemetry);
-                    int x = int.Parse(orientations[0]);
-                    int y = int.Parse(orientations[1]);
-                    int z = int.Parse(orientations[2]);
+                    // telemetry
+                    if (message[1] != '#')
+                    {
+                        //Debug.Log(message);
+                        string telemetry = message.Remove(0, 1);
+                        string[] orientations = telemetry.Split(',');
+                        Debug.Log(telemetry);
+                        int x = int.Parse(orientations[0]);
+                        int y = int.Parse(orientations[1]);
+                        int z = int.Parse(orientations[2]);
 
-                    deviceRepresentation.rotation = Quaternion.Euler(0, -z, 0);
+                        deviceRepresentation.rotation = Quaternion.Euler(0, -z, 0);
+                    }
+                    // requests
+                    else if(message[1] == '#')
+                    {
+                        // cue
+                        if(message[2] == 'c')
+                        {
+                            Debug.Log("cue requested");
+                            btn_fire_command_Click();
+                        }
+                        // target select
+                        if(message[2] == 't')
+                        {
+                            Debug.Log("target selected");
+                        }
+                        if(message[2] == 'd')
+                        {
+                            Debug.Log("calibration successful");
+                        }
+                    }
                 }
                 else
                 {
@@ -252,6 +301,15 @@ public class SerialCommunicator : MonoBehaviour {
                 SetRightGimbalPosition();
                 rightGimbalLastValue = (int)rightGimbalSlider.value;
                 rightGimbalText.text = rightGimbalLastValue.ToString();
+            }
+
+            // servo control
+            if(servoLastValue != (int)servoSlider.value)
+            {
+                servoLastValue = (int)servoSlider.value;
+                SetServoAngle(servoLastValue);
+
+                servoText.text = servoLastValue.ToString();
             }
 
 

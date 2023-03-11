@@ -61,8 +61,9 @@ class BrushlessMotorController_c {
     
     void UpdateLoop() {
         // calculate new degrees
-        currentTime = micros();
+        
         if(!doneCommand){
+          currentTime = micros();
           if(currentTime - commandTime > PWM_interpolation_time* 1.3 * 1000000) doneCommand = true;
           double timeDifference = (float)(currentTime - previousTime)/1000000;
 
@@ -83,8 +84,8 @@ class BrushlessMotorController_c {
             doneCommand = true;
           }
           brushlessMotor.write(PWM_Current);
-          
+          previousTime = micros();
         }
-        previousTime = micros();
+        
     }
 };
