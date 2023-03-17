@@ -22,6 +22,10 @@ class BrushlessMotorController_c {
     float PWM_Last = 0;
     float PWM_interpolation_time = 1.0f;
     double commandTime = 0;
+
+
+    int interpTimestep_ms = 15;
+    long targetTime = 0;
     BrushlessMotorController_c() {
         
     } 
@@ -47,6 +51,7 @@ class BrushlessMotorController_c {
       Serial.println(PWM_Current);
       commandTime = micros();
       doneCommand = false;
+      targetTime = 0;
     }
     
     void SetUpMotor(int pwmPin){
@@ -62,9 +67,32 @@ class BrushlessMotorController_c {
     void UpdateLoop() {
         // calculate new degrees
         
+
+
         if(!doneCommand){
-          currentTime = micros();
-          if(currentTime - commandTime > PWM_interpolation_time* 1.3 * 1000000) doneCommand = true;
+          currentTime = millis();
+          if(currentTime > targetTime){
+            targetTime = millis() + interpTimestep_ms;
+            if(PWM_Current < PWM_Target)PWM_Current += 1;
+            if(PWM_Current > PWM_Target)PWM_Current -= 1;
+            
+            if(PWM_Current > 180 && PWM_Target > 180)PWM_Current = 180;
+            else if (PWM_Current > 180 && PWM_Target < 180)PWM_Current = PWM_Target;
+            else if(PWM_Current < 50 && PWM_Target < 50) PWM_Current = 50;
+            else if(PWM_Current < 50 && PWM_Target > 50) PWM_Current = PWM_Target;
+
+            if(abs(PWM_Current - PWM_Target)< 3){
+              Serial.println("Done");
+              PWM_Current = PWM_Target;
+              doneCommand = true;
+            }
+            brushlessMotor.write(PWM_Current);
+            
+          }
+        }
+        /*
+        if(!doneCommand){
+
           double timeDifference = (float)(currentTime - previousTime)/1000000;
 
           // calculate how much we need to change the pwm in this time difference
@@ -85,7 +113,9 @@ class BrushlessMotorController_c {
           }
           brushlessMotor.write(PWM_Current);
           previousTime = micros();
-        }
+        }*/
+        
+        
         
     }
 };

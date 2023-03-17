@@ -42,7 +42,7 @@ class MotorController_c {
 
     bool emergencyStop = false;
 
-    float PI_Gain = 5.0f;
+    float PI_Gain = 1.0f;
     float PI_Gain_Slow = 0.2f;
     
     bool stationary = false;
@@ -56,7 +56,7 @@ class MotorController_c {
 
     void ForceSetOrientation(float newOrientation){
       currentDegrees = newOrientation;
-      SetTargetRotation(currentDegrees);
+      SetTargetRotation(0);
     }
 
 
@@ -89,7 +89,7 @@ class MotorController_c {
       motor = AFMS.getMotor(motorNumber);
       if(serialDebug)Serial.println("Motor set up");
       if(serialDebug)Serial.println(motorNumber);
-      //SetUpRpmPolls();
+      SetUpRpmPolls();
     }
 
 
@@ -99,7 +99,7 @@ class MotorController_c {
       RPM_degrees_current = 0;
       RPM_degrees_target = newRPM;
       // set current power via heuristic:
-      currentMotorPower = map(newRPM ,0, 1080, 5, 255);
+      currentMotorPower = map(newRPM ,0, 800, 5, 200);
       if(serialDebug)Serial.println("RPM_degrees_target: " + String(RPM_degrees_target));
     }
 
@@ -135,6 +135,7 @@ class MotorController_c {
     }
 
     void EmergencyResume(){
+      
       emergencyStop = false;
     }
 
@@ -158,8 +159,8 @@ class MotorController_c {
           float timeDifference = (float)(currentTime - previousTime)/1000000;
           float deg = ((float)cumPos / (GEARING*ENCODERMULT))* 360;
     
-          //float rotationChange = ((float) posDifference / (GEARING*ENCODERMULT)) *360;
-          //float RPM_poll = abs(rotationChange / timeDifference);
+          float rotationChange = ((float) posDifference / (GEARING*ENCODERMULT)) *360;
+          float RPM_poll = abs(rotationChange / timeDifference);
           
           
           currentDegrees = deg;
@@ -172,9 +173,9 @@ class MotorController_c {
           
           BangBangControl();
           if(!stationary){ 
-            //AddToRpmPollQueue(RPM_poll);
+            AddToRpmPollQueue(RPM_poll);
           
-           // RPM_degrees_current = CalculateRpmEstimate();
+            RPM_degrees_current = CalculateRpmEstimate();
           }
           
           int cumPosDifference = cumPos - lastCumPos;
@@ -229,6 +230,9 @@ class MotorController_c {
       
         // get current rotation in degrees.
       //Serial.println(currentDegrees);
+      if(precision_degrees < 1){
+        precision_degrees = 5;
+      }
      
       if(abs(targetRotation-currentDegrees) < precision_degrees){
         //Serial.println("stationary - targetRot:" + String(targetRotation) + " currentDegrees " + String(currentDegrees));
@@ -239,8 +243,8 @@ class MotorController_c {
      else if(targetRotation > currentDegrees && abs(targetRotation-currentDegrees) > precision_degrees){
       //Serial.println("forwards bang bang");
               motor->run(FORWARD);
-              motor->setSpeed(currentMotorPower);
-              //Pcontrol();
+              //motor->setSpeed(currentMotorPower);
+              Pcontrol();
               stationary = false;
               //Serial.println("FORWARD" + String(motorNumber)  + " " + String(currentDegrees) + " -> " +String(targetRotation));
      }
@@ -248,8 +252,8 @@ class MotorController_c {
      else if(targetRotation < currentDegrees && abs(targetRotation-currentDegrees) > precision_degrees){
             //  Serial.println("backwards bang bang");
               motor->run(BACKWARD);
-              motor->setSpeed(currentMotorPower);
-              //Pcontrol();
+             // motor->setSpeed(currentMotorPower);
+              Pcontrol();
               stationary = false;
               //Serial.println("BACKWARD" + String(motorNumber)  + " " + String(currentDegrees) + " -> " +String(targetRotation));
      }

@@ -109,12 +109,12 @@
     <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\Signals\SignalReceiverHeader.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\Undo\UndoExtensions.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\Audio\AudioClipPropertiesDrawer.cs" />
-    <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\treeview\Drawers\Layers\ItemsLayer.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\CustomEditors\ClipEditor.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\Signals\SignalEmitterInspector.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\Window\Modes\TimelineActiveMode.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\Manipulators\Cursors\TimelineCursors.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\treeview\TrackPropertyCurvesDataSource.cs" />
+    <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\treeview\Drawers\Layers\ItemsLayer.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\Signals\SignalUtility.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\treeview\Snapping\IAttractable.cs" />
     <Compile Include="Library\PackageCache\com.unity.timeline@1.4.5\Editor\Manipulators\Trim\TrimItemModeReplace.cs" />

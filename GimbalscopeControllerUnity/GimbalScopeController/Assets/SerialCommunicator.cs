@@ -15,7 +15,7 @@ public class SerialCommunicator : MonoBehaviour {
     int rightBrushlessLastValue = 70;
     int dualBrushlessLastValue = 70;
 
-    
+
     int servoLastValue = 90;
 
     public Slider leftGimbalSlider;
@@ -33,27 +33,31 @@ public class SerialCommunicator : MonoBehaviour {
     public Text rightBrushlessText;
     public Text dualBrushlessText;
 
-    public Slider servoSlider;
-    public Text servoText;
+    public InputField servoInputField;
 
 
-    public InputField targetOrientationField;
+
+    public InputField targetOrientationFieldLeft;
+    public InputField targetOrientationFieldRight;
     public InputField fireRotationSpeedField;
-    public InputField reloadTargetOrientationField;
+    public InputField reloadTargetOrientationFieldLeft;
+    public InputField reloadTargetOrientationFieldRight;
     public InputField reloadRotationalSpeedField;
     public InputField firePrecisionField;
     public InputField reloadPrecisionField;
     public InputField brushlessInterpolationTimeField;
 
     public Transform deviceRepresentation;
-   
+
 
     public Button fireButton;
 
 
-    public String defaultFireTargetOrientation;
+    public String defaultFireTargetOrientationLeft;
+    public String defaultFireTargetOrientationRight;
     public String defaultFireRotationSpeed;
-    public String defaultReloadTargetOrientation;
+    public String defaultReloadTargetOrientationLeft;
+    public String defaultReloadTargetOrientationRight;
     public String defaultReloadRotationSpeed;
     public String defaultFirePrecision;
     public String defaultReloadPrecision;
@@ -61,16 +65,18 @@ public class SerialCommunicator : MonoBehaviour {
 
     SerialDuplexManager serialDuplexManager;
 
-    void Start () {
-        serialDuplexManager = FindObjectOfType<SerialDuplexManager> ();
+    void Start() {
+        serialDuplexManager = FindObjectOfType<SerialDuplexManager>();
         SetupDefaultValues();
     }
 
     void SetupDefaultValues()
     {
-        GetTextFromInputField(targetOrientationField).text = defaultFireTargetOrientation;
+        GetTextFromInputField(targetOrientationFieldLeft).text = defaultFireTargetOrientationLeft;
+        GetTextFromInputField(targetOrientationFieldRight).text = defaultFireTargetOrientationRight;
         GetTextFromInputField(fireRotationSpeedField).text = defaultFireRotationSpeed;
-        GetTextFromInputField(reloadTargetOrientationField).text = defaultReloadTargetOrientation;
+        GetTextFromInputField(reloadTargetOrientationFieldLeft).text = defaultReloadTargetOrientationLeft;
+        GetTextFromInputField(reloadTargetOrientationFieldRight).text = defaultReloadTargetOrientationRight;
         GetTextFromInputField(reloadRotationalSpeedField).text = defaultReloadRotationSpeed;
         GetTextFromInputField(firePrecisionField).text = defaultFirePrecision;
         GetTextFromInputField(reloadPrecisionField).text = defaultReloadPrecision;
@@ -78,11 +84,21 @@ public class SerialCommunicator : MonoBehaviour {
 
     }
 
+    void UpdateGimbalSliders()
+    {
+        leftGimbalSlider.value = (float)Int32.Parse(reloadTargetOrientationFieldLeft.text);
+        rightGimbalSlider.value = (float)Int32.Parse(reloadTargetOrientationFieldRight.text);
+        leftGimbalLastValue = (int)leftGimbalSlider.value;
+        rightGimbalLastValue = (int)rightGimbalSlider.value;
+        leftGimbalText.text = leftGimbalLastValue.ToString();
+        rightGimbalText.text = rightGimbalLastValue.ToString();
+    }
+
     InputField GetTextFromInputField(InputField field)
     {
         return field;
     }
-    
+
 
 
     private void SetLeftGimbalPosition()
@@ -141,31 +157,40 @@ public class SerialCommunicator : MonoBehaviour {
         byte motorID = 0;
         byte functionID = 3;
 
+        dualGimbalSlider.value = 0;
+        leftGimbalSlider.value = 0;
+        rightGimbalSlider.value = 0;
+
+        dualGimbalLastValue = 0;
+        leftGimbalLastValue = 0;
+        rightGimbalLastValue = 0;
+
         string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + "0000";
         Debug.Log(commandString);
         serialDuplexManager.SendMessageViaSerial(commandString);
     }
 
-    public void btn_fire_command_Click()
+    public void btn_set_settings_command_Click()
     {
         byte motorType = 0;
         byte motorID = 0;
-        byte functionID = 0;
+        byte functionID = 4;
 
-        double fireTargetAngle = Single.Parse(GetTextFromInputField(targetOrientationField).text);
-        fireTargetAngle = Math.Round(fireTargetAngle, 4);
-        //byte[] bytes_fireTargetAngle = BitConverter.GetBytes(fireTargetAngle);
+        double fireTargetAngleLeft = Single.Parse(GetTextFromInputField(targetOrientationFieldLeft).text);
+        fireTargetAngleLeft = Math.Round(fireTargetAngleLeft, 4);
+
+        double fireTargetAngleRight = Single.Parse(GetTextFromInputField(targetOrientationFieldRight).text);
+        fireTargetAngleRight = Math.Round(fireTargetAngleRight, 4);
 
         double fireDegreesPerSecond = Single.Parse(GetTextFromInputField(fireRotationSpeedField).text);
         fireDegreesPerSecond = Math.Round(fireDegreesPerSecond, 4);
-        //byte[] bytes_fireDegreesPerSecond = BitConverter.GetBytes(fireDegreesPerSecond);
 
 
         string firePrecisonString = GetTextFromInputField(firePrecisionField).text;
 
 
-        string reloadTargetAngle = GetTextFromInputField(reloadTargetOrientationField).text;
-
+        string reloadTargetAngleLeft = GetTextFromInputField(reloadTargetOrientationFieldLeft).text;
+        string reloadTargetAngleRight = GetTextFromInputField(reloadTargetOrientationFieldRight).text;
 
         double reloadDegreesPerSecond = Single.Parse(GetTextFromInputField(reloadRotationalSpeedField).text);
         reloadDegreesPerSecond = Math.Round(reloadDegreesPerSecond, 4);
@@ -175,18 +200,68 @@ public class SerialCommunicator : MonoBehaviour {
 
 
 
-        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireTargetAngle.ToString() + "," + fireDegreesPerSecond.ToString() + "," + firePrecisonString + "," + reloadTargetAngle + "," + reloadDegreesPerSecond.ToString() + "," + reloadPrecisionString + ",";
+        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireDegreesPerSecond.ToString() + "," + firePrecisonString + "," + reloadDegreesPerSecond.ToString() + "," + reloadPrecisionString + ",";
+        // motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireDegreesPerSecond.ToString() + "," + firePrecisonString + "," + reloadDegreesPerSecond.ToString() + "," + reloadPrecisionString +, ",";
 
+        System.Diagnostics.Debug.WriteLine("--btn_set_settings_command_Click--");
+
+        serialDuplexManager.SendMessageViaSerial(commandString);
+
+        //  UpdateGimbalSliders();
+
+        Debug.Log(commandString);
+    }
+
+    
+
+    public void btn_fire_command_Click()
+    {
+        byte motorType = 0;
+        byte motorID = 0;
+        byte functionID = 0;
+
+        double fireTargetAngleLeft = Single.Parse(GetTextFromInputField(targetOrientationFieldLeft).text);
+        fireTargetAngleLeft = Math.Round(fireTargetAngleLeft, 4);
+
+        double fireTargetAngleRight = Single.Parse(GetTextFromInputField(targetOrientationFieldRight).text);
+        fireTargetAngleRight = Math.Round(fireTargetAngleRight, 4);
+
+        double fireDegreesPerSecond = Single.Parse(GetTextFromInputField(fireRotationSpeedField).text);
+        fireDegreesPerSecond = Math.Round(fireDegreesPerSecond, 4);
+
+
+        string firePrecisonString = GetTextFromInputField(firePrecisionField).text;
+
+
+        string reloadTargetAngleLeft = GetTextFromInputField(reloadTargetOrientationFieldLeft).text;
+        string reloadTargetAngleRight = GetTextFromInputField(reloadTargetOrientationFieldRight).text;
+
+        double reloadDegreesPerSecond = Single.Parse(GetTextFromInputField(reloadRotationalSpeedField).text);
+        reloadDegreesPerSecond = Math.Round(reloadDegreesPerSecond, 4);
+
+
+        string reloadPrecisionString = GetTextFromInputField(reloadPrecisionField).text;
+
+
+
+        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireTargetAngleLeft.ToString() + "," + fireTargetAngleRight.ToString() + "," + reloadTargetAngleLeft + "," + reloadTargetAngleRight + ",";
+        // motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireDegreesPerSecond.ToString() + "," + firePrecisonString + "," + reloadDegreesPerSecond.ToString() + "," + reloadPrecisionString +, ",";
 
         System.Diagnostics.Debug.WriteLine("--btn_fire_command_Click--");
 
         serialDuplexManager.SendMessageViaSerial(commandString);
 
+        UpdateGimbalSliders();
+
         Debug.Log(commandString);
     }
 
+    public void btn_servo_set_command()
+    {
+        SetServoAngle(int.Parse(servoInputField.text));
+    }
 
-    private void SetServoAngle(int angle)
+    public void SetServoAngle(int angle)
     {
         byte motorType = 1;
         byte motorID = 0;
@@ -197,7 +272,7 @@ public class SerialCommunicator : MonoBehaviour {
         serialDuplexManager.SendMessageViaSerial(commandString);
         Debug.Log(commandString);
     }
-    private void SetBrushlessPWM(byte motorID, float targetPWM)
+    public void SetBrushlessPWM(byte motorID, float targetPWM)
     {
         byte motorType = 2;
         byte functionID = 0;
@@ -208,6 +283,16 @@ public class SerialCommunicator : MonoBehaviour {
         Debug.Log(commandString);
     }
 
+    public void btn_return_to_zero_click()
+    {
+        byte motorType = 0;
+        byte motorID = 0;
+        byte functionID = 5;
+
+        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + 'a' + ",";
+        Debug.Log(commandString);
+        serialDuplexManager.SendMessageViaSerial(commandString);
+    }
 
 
     private void Update()
@@ -226,7 +311,7 @@ public class SerialCommunicator : MonoBehaviour {
                         //Debug.Log(message);
                         string telemetry = message.Remove(0, 1);
                         string[] orientations = telemetry.Split(',');
-                        Debug.Log(telemetry);
+                        //Debug.Log(telemetry);
                         int x = int.Parse(orientations[0]);
                         int y = int.Parse(orientations[1]);
                         int z = int.Parse(orientations[2]);
@@ -303,14 +388,7 @@ public class SerialCommunicator : MonoBehaviour {
                 rightGimbalText.text = rightGimbalLastValue.ToString();
             }
 
-            // servo control
-            if(servoLastValue != (int)servoSlider.value)
-            {
-                servoLastValue = (int)servoSlider.value;
-                SetServoAngle(servoLastValue);
-
-                servoText.text = servoLastValue.ToString();
-            }
+            
 
 
             // brushless control
