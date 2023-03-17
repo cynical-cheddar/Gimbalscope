@@ -91,6 +91,10 @@ public class PerceptionTestManager : MonoBehaviour
 
     public CueSettings backwardsTiltSettingsPreset;
 
+    public CueSettings leftTwistSettingsPreset;
+
+    public CueSettings rightTwistSettingsPreset;
+
     SerialCommunicator serialCommunicator;
 
 
@@ -117,6 +121,14 @@ public class PerceptionTestManager : MonoBehaviour
         PopulateSettings(trialQueue[0]);
     }
 
+    float SaturationToPwm(int saturation)
+    {
+        float maxPwm = serialCommunicator.dualBrushlessSlider.maxValue;
+        float minPwm = serialCommunicator.dualBrushlessSlider.minValue;
+
+        return (Mathf.Lerp(minPwm, maxPwm, ((float)saturation / 100)));
+    }
+
 
 
 
@@ -132,8 +144,8 @@ public class PerceptionTestManager : MonoBehaviour
             foreach (int saturation in MotorSaturationValues)
             {
                 CueSettings setting = leftTiltSettingsPreset;
-                setting.brushlessPWM = ;
-                setting.motorSaturation = pwm;
+                setting.brushlessPWM = SaturationToPwm(saturation);
+                setting.motorSaturation = saturation;
                 setting.cueType = CueType.leftTilt;
                 setting.trial_id = trial_id;
                 trial_id += 1;
@@ -148,7 +160,8 @@ public class PerceptionTestManager : MonoBehaviour
             foreach (int saturation in MotorSaturationValues)
             {
                 CueSettings setting = rightTiltSettingsPreset;
-                setting.brushlessPWM = pwm;
+                setting.brushlessPWM = SaturationToPwm(saturation);
+                setting.motorSaturation = saturation;
                 setting.cueType = CueType.rightTilt;
                 setting.trial_id = trial_id;
                 trial_id += 1;
@@ -162,7 +175,8 @@ public class PerceptionTestManager : MonoBehaviour
             foreach (int saturation in MotorSaturationValues)
             {
                 CueSettings setting = forwardsTiltSettingsPreset;
-                setting.brushlessPWM = pwm;
+                setting.brushlessPWM = SaturationToPwm(saturation);
+                setting.motorSaturation = saturation;
                 setting.cueType = CueType.forwardsTilt;
                 setting.trial_id = trial_id;
                 trial_id += 1;
@@ -177,8 +191,41 @@ public class PerceptionTestManager : MonoBehaviour
             foreach (int saturation in MotorSaturationValues)
             {
                 CueSettings setting = backwardsTiltSettingsPreset;
-                setting.brushlessPWM = pwm;
+                setting.brushlessPWM = SaturationToPwm(saturation);
+                setting.motorSaturation = saturation;
                 setting.cueType = CueType.backwardsTilt;
+                setting.trial_id = trial_id;
+                trial_id += 1;
+                trialQueue.Add(setting);
+            }
+        }
+
+        // left twist
+        for (int i = 0; i < (leftTiltTrialCount); i++)
+        {
+
+            foreach (int saturation in MotorSaturationValues)
+            {
+                CueSettings setting = leftTwistSettingsPreset;
+                setting.brushlessPWM = SaturationToPwm(saturation);
+                setting.motorSaturation = saturation;
+                setting.cueType = CueType.leftTwist;
+                setting.trial_id = trial_id;
+                trial_id += 1;
+                trialQueue.Add(setting);
+            }
+        }
+
+        // right twist
+        for (int i = 0; i < (rightTiltTrialCount); i++)
+        {
+
+            foreach (int saturation in MotorSaturationValues)
+            {
+                CueSettings setting = rightTwistSettingsPreset;
+                setting.brushlessPWM = SaturationToPwm(saturation);
+                setting.motorSaturation = saturation;
+                setting.cueType = CueType.rightTwist;
                 setting.trial_id = trial_id;
                 trial_id += 1;
                 trialQueue.Add(setting);
@@ -220,7 +267,7 @@ public class PerceptionTestManager : MonoBehaviour
         completedTrial.brushlessPWM = currentSettings.brushlessPWM;
         completedTrial.cueType = currentSettings.cueType;
         completedTrial.correct = true;
-        completedTrial.motorSaturation = CalculateSaturation(currentSettings);
+        completedTrial.motorSaturation = currentSettings.motorSaturation;
         completedTrials.Add(completedTrial);
         AdvanceCue();
         Debug.Log("right");
@@ -236,7 +283,7 @@ public class PerceptionTestManager : MonoBehaviour
             completedTrial.brushlessPWM = currentSettings.brushlessPWM;
             completedTrial.cueType = currentSettings.cueType;
             completedTrial.correct = false;
-            completedTrial.motorSaturation = CalculateSaturation(currentSettings);
+            completedTrial.motorSaturation = currentSettings.motorSaturation;
             completedTrials.Add(completedTrial);
             AdvanceCue();
             Debug.Log("wrong");
@@ -267,6 +314,11 @@ public class PerceptionTestManager : MonoBehaviour
         return saturation;
     }
 
+    void SerialCommunicatorSetGimbalsToReload()
+    {
+        serialCommunicator.btn_go_to_reload_pos_click();
+    }
+
     void SerialCommunicatorSetSettings()
     {
         serialCommunicator.btn_set_settings_command_Click();
@@ -286,8 +338,12 @@ public class PerceptionTestManager : MonoBehaviour
     {
         serialCommunicator.btn_return_to_zero_click();
     }
+    public void btn_populate_settings()
+    {
+        PopulateSettings(currentSettings);
+    }
 
-    void PopulateSettings(CueSettings cueSettings)
+    public void PopulateSettings(CueSettings cueSettings)
     {
         currentSettings = cueSettings;
 
@@ -327,7 +383,14 @@ public class PerceptionTestManager : MonoBehaviour
         {
             cueTypeLabel.text = "Backwards tilt";
         }
-        
+        if (cueSettings.cueType == CueType.leftTwist)
+        {
+            cueTypeLabel.text = "Left twist";
+        }
+        if (cueSettings.cueType == CueType.rightTwist)
+        {
+            cueTypeLabel.text = "Right twist";
+        }
         motorSaturationText.text = CalculateSaturation(cueSettings).ToString() + " %";
 
         serialCommunicator.btn_set_settings_command_Click();
@@ -336,8 +399,8 @@ public class PerceptionTestManager : MonoBehaviour
         Debug.Log("Trial number: " + currentTrialNumber.ToString() + "  trial ID: " + currentSettings.trial_id.ToString());
 
         Invoke(nameof(SerialCommunicatorSetSettings), 0.2f);
-        Invoke(nameof(SerialReturnToZeroGimbals), 0.5f);
-        Invoke(nameof(SerialCommunicatorServo), 2.5f);
+        Invoke(nameof(SerialReturnToZeroGimbals), 1.2f);
+        Invoke(nameof(SerialCommunicatorServo), 3f);
         Invoke(nameof(SerialCommunicatorBrushless), 4.5f);
     }
     public string folder = "test_results_dir";

@@ -25,19 +25,6 @@
 
 
 
-/* Teensy 3.x w/wing
-#define RFM69_RST     9   // "A"
-#define RFM69_CS      10   // "B"
-#define RFM69_IRQ     4    // "C"
-#define RFM69_IRQN    digitalPinToInterrupt(RFM69_IRQ )
-*/
- 
-/* WICED Feather w/wing 
-#define RFM69_RST     PA4     // "A"
-#define RFM69_CS      PB4     // "B"
-#define RFM69_IRQ     PA15    // "C"
-#define RFM69_IRQN    RFM69_IRQ
-*/
 bool pc_serial = true;
 // Singleton instance of the radio driver
 RH_RF69 rf69(RFM69_CS, RFM69_INT);
@@ -46,6 +33,8 @@ int16_t packetnum = 0;  // packet counter, we increment per xmission
 
 void setup() 
 {
+  pinMode(12, OUTPUT);
+  digitalWrite(12, LOW);
   delay(2000);
   if(pc_serial)Serial.begin(9600);
   Serial1.begin(9600);
@@ -123,7 +112,18 @@ void loop() {
       // print results to mega
       Serial1.println((char*)buf);
       if(pc_serial)Serial.println((char*)buf);
-      if (true) {
+      String myMessage = (char*)buf;
+      if(myMessage[0] == '3'){
+        // emergency stop
+        if(pc_serial)Serial.println("emergency stop");
+        digitalWrite(12, HIGH);
+        
+      }
+      else if(myMessage[0] == '4'){
+        if(pc_serial)Serial.println("resume");
+        digitalWrite(12, LOW);
+      }
+      else {
         // Send a reply!
         uint8_t data[] = "acknowledged";
         rf69.send(data, sizeof(data));

@@ -46,6 +46,7 @@ public class SerialCommunicator : MonoBehaviour {
     public InputField firePrecisionField;
     public InputField reloadPrecisionField;
     public InputField brushlessInterpolationTimeField;
+    public Toggle recentreServoOnFire;
 
     public Transform deviceRepresentation;
 
@@ -267,7 +268,7 @@ public class SerialCommunicator : MonoBehaviour {
         byte motorID = 0;
         byte functionID = 0;
 
-        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + angle.ToString() + ",";
+        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + angle.ToString() + "," + "01010"+",";
         Debug.Log(commandString);
         serialDuplexManager.SendMessageViaSerial(commandString);
         Debug.Log(commandString);
@@ -290,6 +291,28 @@ public class SerialCommunicator : MonoBehaviour {
         byte functionID = 5;
 
         string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + 'a' + ",";
+        Debug.Log(commandString);
+        serialDuplexManager.SendMessageViaSerial(commandString);
+    }
+
+    public void btn_go_to_reload_pos_click()
+    {
+        byte motorType = 0;
+        byte motorID = 0;
+        byte functionID = 1;
+
+        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + reloadTargetOrientationFieldLeft.text + "," + reloadTargetOrientationFieldRight.text + "," + reloadRotationalSpeedField.text + ","; 
+        Debug.Log(commandString);
+        serialDuplexManager.SendMessageViaSerial(commandString);
+    }
+
+    public void btn_recentre_servo_click()
+    {
+        byte motorType = 1;
+        byte motorID = 0;
+        byte functionID = 1;
+
+        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + "0" + ",";
         Debug.Log(commandString);
         serialDuplexManager.SendMessageViaSerial(commandString);
     }
@@ -325,6 +348,10 @@ public class SerialCommunicator : MonoBehaviour {
                         if(message[2] == 'c')
                         {
                             Debug.Log("cue requested");
+                            if (recentreServoOnFire.isOn)
+                            {
+                                btn_recentre_servo_click();
+                            }
                             btn_fire_command_Click();
                         }
                         // target select

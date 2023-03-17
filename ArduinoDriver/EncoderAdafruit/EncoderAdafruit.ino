@@ -372,6 +372,10 @@ bool SerialDecoder2(){
           SERVO_STATE = SERVO_COMMAND;
           servoAngle = GetMessageParameter(0, message);
         }
+        if(motorID == '0' && functionID == '1' && SERVO_STATE == SERVO_DETACHED){
+          SERVO_STATE = SERVO_RECENTRE_COMMAND;
+          
+        }
       }
     }
 
@@ -419,9 +423,9 @@ bool SerialDecoder2(){
           if(serialDebug)Serial.println("Setting gimbal position");
               
           reloadTargetAngle_left = GetMessageParameter(0, message);
-          reloadTargetAngle_right = GetMessageParameter(0, message);
-          reloadDegreesPerSecond = GetMessageParameter(1, message);
-          reloadPrecision = GetMessageParameter(2, message);
+          reloadTargetAngle_right = GetMessageParameter(1, message);
+          reloadDegreesPerSecond = GetMessageParameter(2, message);
+          reloadPrecision = GetMessageParameter(3, message);
   
           STATE = STATE_RELOAD_COMMAND;
           return;
@@ -488,6 +492,7 @@ bool SerialDecoder2(){
         }
       }
   }
+  /*
   // EMERGENCY STOP
   if (motorType == '3'){
     if(serialDebug)Serial.println("EMERGENCY STOP");
@@ -497,6 +502,7 @@ bool SerialDecoder2(){
     if(serialDebug)Serial.println("EMERGENCY RESUME");
     STATE = STATE_EMERGENCY_RESUME;
   }
+  */
     
   }
 }
@@ -508,6 +514,7 @@ int buttonStatus = 0;
 int generate_telemetry_delay_ms = 800;
 long target_time = 0;
 int pinValue = 0;
+int emergencyStopPinValue = 0;
 
 long currentLeftEncoderCount = 0;
 long posChangeLeft = 0;
@@ -525,6 +532,22 @@ void loop() {
 
   }
   */
+
+  // check for emergency stop
+  if(STATE != STATE_EMERGENCY_STOP_LOOP){
+    emergencyStopPinValue = digitalRead(33);
+    if(emergencyStopPinValue == HIGH){
+      Serial.println("EMERGENCY STOP BY PIN");
+      STATE = STATE_EMERGENCY_STOP;
+    }
+  }
+  if(STATE == STATE_EMERGENCY_STOP_LOOP){
+    emergencyStopPinValue = digitalRead(33);
+    if(emergencyStopPinValue == LOW){
+      Serial.println("EMERGENCY RESUME BY PIN");
+      STATE = STATE_EMERGENCY_RESUME;
+    }
+  }
 
   if(serialDebug)Serial.println(STATE);
   //Serial.println(reloadPrecision);
@@ -582,7 +605,7 @@ void loop() {
     if(SERVO_STATE == SERVO_RECENTRE_COMMAND){
       myservo.attach(SERVO_PIN);
       SERVO_STATE = SERVO_RECENTRE_LOOP;
-      servoDetachTime = millis() + 50;
+      servoDetachTime = millis() + 800;
     }
     if(SERVO_STATE == SERVO_RECENTRE_LOOP){
       myservo.write(currentServoAngle);
@@ -615,7 +638,7 @@ void loop() {
     brushlessMotorController_right.UpdateLoop();
     // END UPDATE LOOP FOR BRUSHLESS DRIVERS
 
-    if(STATE == STATE_LISTENING_MASTER)SerialDecoder2();
+    if(STATE !=  STATE_FIRE_LOOP && STATE != STATE_RELOAD_LOOP)SerialDecoder2();
     
 
     
@@ -713,8 +736,8 @@ void loop() {
     }
 
     else if(STATE == STATE_ZERO_COMMAND){
-      motorController_right.ReceiveCommand(0, 20, 1);
-      motorController_left.ReceiveCommand(0, 20, 1);
+      motorController_right.ReceiveCommand(0, 60, 1);
+      motorController_left.ReceiveCommand(0, 60, 1);
       STATE = STATE_ZERO_LOOP;
     }
     else if(STATE == STATE_ZERO_LOOP){
