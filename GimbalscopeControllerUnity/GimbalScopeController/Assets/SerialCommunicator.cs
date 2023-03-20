@@ -351,8 +351,13 @@ public class SerialCommunicator : MonoBehaviour {
                             if (recentreServoOnFire.isOn)
                             {
                                 btn_recentre_servo_click();
+                                Invoke(nameof(btn_fire_command_Click), 0.3f);
                             }
-                            btn_fire_command_Click();
+                            else
+                            {
+                                btn_fire_command_Click();
+                            }
+                            
                         }
                         // target select
                         if(message[2] == 't')

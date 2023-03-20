@@ -1,6 +1,7 @@
 import numpy as np
 import json
- 
+import numpy as np
+from scipy.stats import chisquare
 ##
 ##  cueType
 # 0       leftTilt,
@@ -20,7 +21,35 @@ def GetMotorSaturationIndex(motorSaturations, saturation):
         index += 1
     return -1
 
+def CalculateSetHitRate(set):
+    hitrate = 0
+    i = 0
+    hits = 0
+    for trial in set:
+        i += 1
+        if(trial['correct']):
+            hits += 1
+    hitrate = hits / i
+    return hitrate
 
+def SetToHitArray(set):
+    hitArray = []
+    for trial in set:
+        if(trial['correct']):
+            hitArray.append(1)
+        else:
+            hitArray.append(0)
+    return hitArray
+
+def GetSuccessRatesFromTrialSet(trial_set):
+    rates = []
+    for set in trial_set:
+        rates.append(CalculateSetHitRate(set))
+    return rates
+
+def GetExpectedSuccessRate(trial_set):
+    rates = GetSuccessRatesFromTrialSet(trial_set)
+    return np.mean(rates)
 
 # combine all json files in the pwd (without the name mega) into the mega json:
 
@@ -57,9 +86,28 @@ with open('mega.json') as json_file:
     for set in trialset:
         print("=====")
         motorSaturation = motorSaturations[i]
+        print("MOTOR SATURATION")
         print(motorSaturation)
+        print("SET SIZE")
+        print(len(set))
+        print("HITRATE")
         # print hitrate of trial set 
-
+        print(CalculateSetHitRate(set))
+        
+        # https://www.medcalc.org/calc/comparison_of_proportions.php
         print("=====")
-        print(set)
+        #print(set)
         i += 1
+
+    # chi square over dataset
+    successRates = GetSuccessRatesFromTrialSet(trial_set=trialset)
+    print(successRates)
+    meanRate = GetExpectedSuccessRate(trial_set=trialset)
+
+    
+    print(meanRate)
+    val, p = chisquare(successRates, meanRate)
+    print("CHI Square over dataset")
+    print(val, p)
+
+    

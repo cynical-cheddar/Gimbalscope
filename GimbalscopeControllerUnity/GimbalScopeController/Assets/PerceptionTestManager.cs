@@ -16,6 +16,8 @@ public class PerceptionTestManager : MonoBehaviour
     public int rightTiltTrialCount = 3;
     public int forwardsTrialCount = 3;
     public int backwardsTrialCount = 3;
+    public int leftTwistTrialCount = 3;
+    public int rightTwistTrialCount = 3;
 
 
     public List<int> MotorSaturationValues;
@@ -201,7 +203,7 @@ public class PerceptionTestManager : MonoBehaviour
         }
 
         // left twist
-        for (int i = 0; i < (leftTiltTrialCount); i++)
+        for (int i = 0; i < (leftTwistTrialCount); i++)
         {
 
             foreach (int saturation in MotorSaturationValues)
@@ -217,7 +219,7 @@ public class PerceptionTestManager : MonoBehaviour
         }
 
         // right twist
-        for (int i = 0; i < (rightTiltTrialCount); i++)
+        for (int i = 0; i < (rightTwistTrialCount); i++)
         {
 
             foreach (int saturation in MotorSaturationValues)
@@ -402,6 +404,7 @@ public class PerceptionTestManager : MonoBehaviour
         Invoke(nameof(SerialReturnToZeroGimbals), 1.2f);
         Invoke(nameof(SerialCommunicatorServo), 3f);
         Invoke(nameof(SerialCommunicatorBrushless), 4.5f);
+        Invoke(nameof(SerialCommunicatorSetGimbalsToReload), 8f);
     }
     public string folder = "test_results_dir";
     public string filename = "";

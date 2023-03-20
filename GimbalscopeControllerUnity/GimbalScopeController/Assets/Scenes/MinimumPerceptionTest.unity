@@ -3534,7 +3534,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bc5f48af2cffd747a079fe8c632e2c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  portName: COM6
+  portName: COM5
   baudRate: 9600
   messageListener: {fileID: 0}
   reconnectionDelay: 1000
@@ -3563,7 +3563,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff24a7d4c733e5c49bdbdfc189b1f34e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  portName: COM6
+  portName: COM5
   leftGimbalSlider: {fileID: 959464099}
   rightGimbalSlider: {fileID: 1259774755}
   dualGimbalSlider: {fileID: 32875959}
@@ -3737,11 +3737,13 @@ MonoBehaviour:
   maxTrialsText: {fileID: 1067993720}
   currentTrialNumberText: {fileID: 2074724712}
   currentTrialNumber: 0
-  leftTiltTrialCount: 3
-  rightTiltTrialCount: 3
-  forwardsTrialCount: 3
-  backwardsTrialCount: 3
-  MotorSaturationValues: 140000001e0000002800000032000000
+  leftTiltTrialCount: 2
+  rightTiltTrialCount: 2
+  forwardsTrialCount: 2
+  backwardsTrialCount: 2
+  leftTwistTrialCount: 2
+  rightTwistTrialCount: 2
+  MotorSaturationValues: 140000001e00000028000000
   correctHits: 0
   incorrectHits: 0
   currentSettings:

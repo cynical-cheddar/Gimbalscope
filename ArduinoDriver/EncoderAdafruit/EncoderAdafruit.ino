@@ -19,6 +19,8 @@
 // INPUT VARIABLES
 const int buttonPin = 42;  // the number of the pushbutton pin
 const int buttonPinTwo = 43;  // the number of the pushbutton pin
+// LED VARIABLE
+const int greenLEDanaloguePin = 2;
 // variables will change:
 int buttonState = 0;  // variable for reading the pushbutton status
 int buttonStateTwo = 0;  // variable for reading the pushbutton status
@@ -172,6 +174,8 @@ void setup() {
   // INPUT PINS
   pinMode(buttonPin, INPUT);
   pinMode(buttonPinTwo, INPUT);
+  // LED pin
+  pinMode(A2, OUTPUT);
   // laser pin
   pinMode(A3,OUTPUT);
 
@@ -532,6 +536,13 @@ void loop() {
 
   }
   */
+  // LED awareness:
+  if(STATE == STATE_LISTENING_MASTER){
+    digitalWrite(A2,HIGH);
+  }
+  else{
+    digitalWrite(A2,LOW);
+  }
 
   // check for emergency stop
   if(STATE != STATE_EMERGENCY_STOP_LOOP){
@@ -548,6 +559,7 @@ void loop() {
       STATE = STATE_EMERGENCY_RESUME;
     }
   }
+  Serial.println(STATE);
 
   if(serialDebug)Serial.println(STATE);
   //Serial.println(reloadPrecision);
@@ -582,11 +594,11 @@ void loop() {
     // one degree per 50 ms
     if(SERVO_STATE == SERVO_LOOP && millis() > servo_loop_target_time){
       if(servoAngle > currentServoAngle){
-        currentServoAngle += 2;
+        currentServoAngle += 1;
         myservo.write(currentServoAngle);
       }
       else{
-        currentServoAngle -= 2;
+        currentServoAngle -= 1;
         myservo.write(currentServoAngle);
       }
       if(abs(currentServoAngle - servoAngle ) < 2){
@@ -605,10 +617,12 @@ void loop() {
     if(SERVO_STATE == SERVO_RECENTRE_COMMAND){
       myservo.attach(SERVO_PIN);
       SERVO_STATE = SERVO_RECENTRE_LOOP;
-      servoDetachTime = millis() + 800;
+      servoDetachTime = millis() + 1600;
     }
     if(SERVO_STATE == SERVO_RECENTRE_LOOP){
       myservo.write(currentServoAngle);
+      //Serial.println("writing servo angle ");
+      //Serial.println(currentServoAngle);
       if(millis() > servoDetachTime){
         SERVO_STATE = SERVO_DONE;
       }
@@ -630,7 +644,7 @@ void loop() {
     lastRightEncoderCount = currentRightEncoderCount;
     posChangeRight = 0;
   //  Serial.println("R:" + String(currentRightEncoderCount));
-    Serial.println(STATE);
+
     // END UPDATE LOOP FOR MOTOR DRIVERS
 
     // UPDATE LOOP FOR BRUSHLESS DRIVERS
