@@ -235,8 +235,33 @@ public class PerceptionTestManager : MonoBehaviour
         }
 
         trialQueue = Fisher_Yates_CardDeck_Shuffle(trialQueue);
+        // check if events are duplicate next to each other
+        while (CheckForDuplicateSubsequentCueSettings(trialQueue))
+        {
+            Debug.Log("reshuffling");
+            trialQueue = Fisher_Yates_CardDeck_Shuffle(trialQueue);
+        }
         maxTrialsText.text = trial_id.ToString();
 
+    }
+
+    bool CheckForDuplicateSubsequentCueSettings(List<CueSettings> cues)
+    {
+        CueSettings lastCue = cues[0];
+        int i = 0;
+        foreach (CueSettings cue in cues)
+        {
+            if( i > 0)
+            {
+                if(cue.cueType == lastCue.cueType)
+                {
+                    return true;
+                }
+            }
+            lastCue = cue;
+            i += 1;
+        }
+        return false;
     }
 
     public List<CueSettings> Fisher_Yates_CardDeck_Shuffle(List<CueSettings> aList)

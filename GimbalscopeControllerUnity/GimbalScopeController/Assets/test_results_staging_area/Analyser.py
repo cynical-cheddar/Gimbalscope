@@ -2,6 +2,8 @@ import numpy as np
 import json
 import numpy as np
 from scipy.stats import chisquare
+from glob import glob
+import pandas as pd
 ##
 ##  cueType
 # 0       leftTilt,
@@ -11,6 +13,7 @@ from scipy.stats import chisquare
 # 4       leftTwist,
 # 5       rightTwist
 ##
+
 trialset = []
 
 def GetMotorSaturationIndex(motorSaturations, saturation):
@@ -32,6 +35,18 @@ def CalculateSetHitRate(set):
     hitrate = hits / i
     return hitrate
 
+def GetHitResultsFromCueType(cuetype, data):
+    # loop through completed trials
+    # if cueType == cuetype, add to array
+    results = []
+    for trial in data:
+        if(trial['cueType'] == cuetype):
+            if(trial['correct'] == True):
+                results.append(1)
+            else:
+                results.append(0)
+    return results
+
 def SetToHitArray(set):
     hitArray = []
     for trial in set:
@@ -50,15 +65,45 @@ def GetSuccessRatesFromTrialSet(trial_set):
 def GetExpectedSuccessRate(trial_set):
     rates = GetSuccessRatesFromTrialSet(trial_set)
     return np.mean(rates)
+def FlattenList(l):
+    flat_list = []
+    for sublist in l:
+        for item in sublist:
+            flat_list.append(item)
+    return flat_list
+def merge_JsonFiles_to_mega(filenames):
+    # get completed trials from each
+    contents = ['{"completedTrials":']
+    for filename in filenames:
+        with open(filename) as json_file:
+            wrapped_data = json.load(json_file)
+            data = wrapped_data["completedTrials"]
+            contents.append(data)
+    contents.append('}')
+    joined_contents = "".join([str(item) for item in contents])
+    joined_contents = joined_contents.replace("'", '"' )
+    joined_contents = joined_contents.replace("True", 'true' )
+    joined_contents = joined_contents.replace("False", 'false' )
+    joined_contents = joined_contents.replace(" ", '' )
+    joined_contents = joined_contents.replace("][", "," )
+    print(joined_contents)
+    f = open("mega.json", "w")
+    f.write(joined_contents)
+    f.close()
+
 
 # combine all json files in the pwd (without the name mega) into the mega json:
+f_names = []
+for f_name in glob('*.json'):
+    if not (f_name == "mega.json"):
+        f_names.append(f_name)
 
+merge_JsonFiles_to_mega(f_names)
 
 # open the mega JSON file
 with open('mega.json') as json_file:
     wrapped_data = json.load(json_file)
- 
-
+    print(wrapped_data)
     data = wrapped_data["completedTrials"]
     motorSaturations = []
     for trial in data:
@@ -110,4 +155,36 @@ with open('mega.json') as json_file:
     print("CHI Square over dataset")
     print(val, p)
 
-    
+    # now get the success rates for each of the cue types
+                           ##  cueType
+    # 0       leftTilt,
+    leftTiltResults = GetHitResultsFromCueType(0, data)
+    print("leftTiltResults")
+    print(leftTiltResults)
+    print(np.mean(leftTiltResults))
+    # 1       rightTilt,
+    print("rightTiltResults")
+    rightTiltResults = GetHitResultsFromCueType(1, data)
+    print(rightTiltResults)
+    print(np.mean(rightTiltResults))
+    # 2       forwardsTilt,
+    print("forwardsTiltResults")
+    forwardsTiltResults = GetHitResultsFromCueType(2, data)
+    print(forwardsTiltResults)
+    print(np.mean(forwardsTiltResults))
+    # 3       backwardsTilt,
+    print("backwardsTiltResults")
+    backwardsTiltResults = GetHitResultsFromCueType(3, data)
+    print(backwardsTiltResults)
+    print(np.mean(backwardsTiltResults))
+    # 4       leftTwist,
+    print("leftTwistResults")
+    leftTwistResults = GetHitResultsFromCueType(4, data)
+    print(leftTwistResults)
+    print(np.mean(leftTwistResults))
+    # 5       rightTwist    
+    print("rightTwistResults")
+    rightTwistResults = GetHitResultsFromCueType(5, data)
+    print(rightTwistResults)
+    print(np.mean(rightTwistResults))                   
+
