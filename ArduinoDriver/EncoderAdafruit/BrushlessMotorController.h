@@ -24,7 +24,7 @@ class BrushlessMotorController_c {
     double commandTime = 0;
 
 
-    int interpTimestep_ms = 15;
+    int interpTimestep_ms = 5;
     long targetTime = 0;
     BrushlessMotorController_c() {
         

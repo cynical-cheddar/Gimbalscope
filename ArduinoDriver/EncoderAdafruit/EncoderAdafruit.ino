@@ -617,7 +617,7 @@ void loop() {
     if(SERVO_STATE == SERVO_RECENTRE_COMMAND){
       myservo.attach(SERVO_PIN);
       SERVO_STATE = SERVO_RECENTRE_LOOP;
-      servoDetachTime = millis() + 1600;
+      servoDetachTime = millis() + 300;
     }
     if(SERVO_STATE == SERVO_RECENTRE_LOOP){
       myservo.write(currentServoAngle);
@@ -727,6 +727,7 @@ void loop() {
     else if(STATE == STATE_FIRE_COMMAND){
       motorController_right.ReceiveCommand(fireTargetAngle_right, fireDegreesPerSecond, firePrecision);
       motorController_left.ReceiveCommand(fireTargetAngle_left, fireDegreesPerSecond, firePrecision);
+      Serial3.println("##f");
       STATE = STATE_FIRE_LOOP;
     }
     else if(STATE == STATE_FIRE_LOOP){
@@ -745,6 +746,8 @@ void loop() {
       if(motorController_right.doneCommand && motorController_left.doneCommand){
         // recentre servo
         SERVO_STATE = SERVO_RECENTRE_COMMAND;
+        // signal that the trigger is available again
+        Serial3.println("##p");
         STATE = STATE_LISTENING_MASTER;
       }
     }

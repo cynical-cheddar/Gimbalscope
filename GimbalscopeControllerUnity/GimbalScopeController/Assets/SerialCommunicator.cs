@@ -255,6 +255,10 @@ public class SerialCommunicator : MonoBehaviour {
         UpdateGimbalSliders();
 
         Debug.Log(commandString);
+
+        
+
+
     }
 
     public void btn_servo_set_command()
@@ -357,7 +361,23 @@ public class SerialCommunicator : MonoBehaviour {
                             {
                                 btn_fire_command_Click();
                             }
+                        }
+                        // play the trigger enabled sound effect
+                        if(message[2] == 'p')
+                        {
+                            PerceptionTestManager ptm = FindObjectOfType<PerceptionTestManager>();
+                            if(Time.time - lastTouchedGimbalTime > 5)
+                            {
+                                ptm.PlayTriggerEnabledSound();
+                            }
                             
+                        }
+                        // we've fired
+                        if (message[2] == 'f')
+                        {
+                            PerceptionTestManager ptm = FindObjectOfType<PerceptionTestManager>();
+
+                            ptm.AddRequestStat();
                         }
                         // target select
                         if(message[2] == 't')
@@ -383,6 +403,7 @@ public class SerialCommunicator : MonoBehaviour {
 
     public float updateInterval = 0.5f;
     float cooldown = 0.5f;
+    float lastTouchedGimbalTime = 0;
     private void FixedUpdate()
     {
         cooldown -= Time.fixedDeltaTime;
@@ -403,6 +424,7 @@ public class SerialCommunicator : MonoBehaviour {
 
                 leftGimbalLastValue = dualGimbalLastValue;
                 rightGimbalLastValue = dualGimbalLastValue;
+                lastTouchedGimbalTime = Time.time;
             }
 
             else if (leftGimbalLastValue != (int)leftGimbalSlider.value)
@@ -410,7 +432,7 @@ public class SerialCommunicator : MonoBehaviour {
                 SetLeftGimbalPosition();
                 leftGimbalLastValue = (int)leftGimbalSlider.value;
                 leftGimbalText.text = leftGimbalSlider.value.ToString();
-
+                lastTouchedGimbalTime = Time.time;
 
             }
             else if (rightGimbalLastValue != (int)rightGimbalSlider.value)
@@ -418,6 +440,7 @@ public class SerialCommunicator : MonoBehaviour {
                 SetRightGimbalPosition();
                 rightGimbalLastValue = (int)rightGimbalSlider.value;
                 rightGimbalText.text = rightGimbalLastValue.ToString();
+                lastTouchedGimbalTime = Time.time;
             }
 
             

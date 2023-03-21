@@ -5,6 +5,11 @@ using System;
 using System.IO;
 public class PerceptionTestManager : MonoBehaviour
 {
+
+    public AudioClip advanceSound;
+    public AudioClip triggerEnabledSound;
+
+
     public Text cueTypeLabel;
     public Text motorSaturationText;
     public Text maxTrialsText;
@@ -22,8 +27,8 @@ public class PerceptionTestManager : MonoBehaviour
 
     public List<int> MotorSaturationValues;
 
-    
 
+    int currentRequestsCount = 0;
 
     public enum CueType
     {
@@ -76,6 +81,8 @@ public class PerceptionTestManager : MonoBehaviour
         public float motorSaturation;
         [SerializeField]
         public bool correct;
+        [SerializeField]
+        public int requests;
     }
 
     public int correctHits = 0;
@@ -129,6 +136,11 @@ public class PerceptionTestManager : MonoBehaviour
         float minPwm = serialCommunicator.dualBrushlessSlider.minValue;
 
         return (Mathf.Lerp(minPwm, maxPwm, ((float)saturation / 100)));
+    }
+
+    public void AddRequestStat()
+    {
+        currentRequestsCount += 1;
     }
 
 
@@ -255,7 +267,11 @@ public class PerceptionTestManager : MonoBehaviour
             {
                 if(cue.cueType == lastCue.cueType)
                 {
-                    return true;
+                    if(cue.motorSaturation == lastCue.motorSaturation)
+                    {
+                        return true;
+                    }
+                    
                 }
             }
             lastCue = cue;
@@ -295,6 +311,7 @@ public class PerceptionTestManager : MonoBehaviour
         completedTrial.cueType = currentSettings.cueType;
         completedTrial.correct = true;
         completedTrial.motorSaturation = currentSettings.motorSaturation;
+        completedTrial.requests = currentRequestsCount;
         completedTrials.Add(completedTrial);
         AdvanceCue();
         Debug.Log("right");
@@ -311,6 +328,7 @@ public class PerceptionTestManager : MonoBehaviour
             completedTrial.cueType = currentSettings.cueType;
             completedTrial.correct = false;
             completedTrial.motorSaturation = currentSettings.motorSaturation;
+            completedTrial.requests = currentRequestsCount;
             completedTrials.Add(completedTrial);
             AdvanceCue();
             Debug.Log("wrong");
@@ -320,6 +338,7 @@ public class PerceptionTestManager : MonoBehaviour
 
     public void AdvanceCue()
     {
+        
         currentTrialNumber++;
         if (currentTrialNumber >= trialQueue.Count)
         {
@@ -331,6 +350,7 @@ public class PerceptionTestManager : MonoBehaviour
             Debug.Log("advancing trial");
             PopulateSettings(trialQueue[currentTrialNumber]);
         }
+        currentRequestsCount = 0;
     }
 
     float CalculateSaturation(CueSettings cueSettings)
@@ -369,6 +389,49 @@ public class PerceptionTestManager : MonoBehaviour
     {
         PopulateSettings(currentSettings);
     }
+
+    public void btn_L_tilt()
+    {
+        PopulateWithExample(CueType.leftTilt);
+    }
+    public void btn_R_tilt()
+    {
+        PopulateWithExample(CueType.rightTilt);
+    }
+    public void btn_F_tilt()
+    {
+        PopulateWithExample(CueType.forwardsTilt);
+    }
+    public void btn_B_tilt()
+    {
+        PopulateWithExample(CueType.backwardsTilt);
+    }
+    public void btn_L_twist()
+    {
+        PopulateWithExample(CueType.leftTwist);
+    }
+    public void btn_R_twist()
+    {
+        PopulateWithExample(CueType.rightTwist);
+    }
+
+    public void PopulateWithExample(CueType cueType)
+    {
+        CueSettings exampleSettings = leftTiltSettingsPreset;
+        if(cueType == CueType.leftTilt)exampleSettings = leftTiltSettingsPreset;
+        if (cueType == CueType.rightTilt) exampleSettings = rightTiltSettingsPreset;
+        if (cueType == CueType.forwardsTilt) exampleSettings = forwardsTiltSettingsPreset;
+        if (cueType == CueType.backwardsTilt) exampleSettings = backwardsTiltSettingsPreset;
+        if (cueType == CueType.leftTwist) exampleSettings = leftTwistSettingsPreset;
+        if (cueType == CueType.rightTwist) exampleSettings = rightTwistSettingsPreset;
+
+
+        exampleSettings.brushlessPWM = 65;
+        exampleSettings.motorSaturation = 20;
+
+        PopulateSettings(exampleSettings);
+    }
+
 
     public void PopulateSettings(CueSettings cueSettings)
     {
@@ -424,12 +487,24 @@ public class PerceptionTestManager : MonoBehaviour
 
 
         Debug.Log("Trial number: " + currentTrialNumber.ToString() + "  trial ID: " + currentSettings.trial_id.ToString());
+        PlayAdvancingToNextTrialSound();
+       // Invoke(nameof(SerialCommunicatorSetSettings), 0.2f);
+        Invoke(nameof(SerialReturnToZeroGimbals), 1.5f);
+        Invoke(nameof(SerialCommunicatorServo), 2f);
+        Invoke(nameof(SerialCommunicatorBrushless), 5f);
+        Invoke(nameof(SerialCommunicatorSetGimbalsToReload), 7f);
+        //Invoke(nameof(PlayTriggerEnabledSound), 9f);
+    }
 
-        Invoke(nameof(SerialCommunicatorSetSettings), 0.2f);
-        Invoke(nameof(SerialReturnToZeroGimbals), 1.2f);
-        Invoke(nameof(SerialCommunicatorServo), 3f);
-        Invoke(nameof(SerialCommunicatorBrushless), 4.5f);
-        Invoke(nameof(SerialCommunicatorSetGimbalsToReload), 8f);
+    public void PlayAdvancingToNextTrialSound()
+    {
+        GetComponent<AudioSource>().clip =  (advanceSound);
+        GetComponent<AudioSource>().Play();
+    }
+    public void PlayTriggerEnabledSound()
+    {
+        GetComponent<AudioSource>().clip = (triggerEnabledSound);
+        GetComponent<AudioSource>().Play();
     }
     public string folder = "test_results_dir";
     public string filename = "";
