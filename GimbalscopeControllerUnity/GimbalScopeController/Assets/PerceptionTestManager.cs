@@ -116,7 +116,7 @@ public class PerceptionTestManager : MonoBehaviour
     [SerializeField]
     CompletedTrialsWrapper completedTrialsWrapper;
 
-
+    public InputField saturationDirectInput;
 
     private void Start()
     {
@@ -127,7 +127,14 @@ public class PerceptionTestManager : MonoBehaviour
 
     public void InitialPopulation()
     {
+        currentRequestsCount = 0;
         PopulateSettings(trialQueue[0]);
+    }
+
+    public void btn_set_saturation_click()
+    {
+        float pwm = SaturationToPwm(int.Parse(saturationDirectInput.text));
+        serialCommunicator.dualBrushlessSlider.value = pwm;
     }
 
     float SaturationToPwm(int saturation)

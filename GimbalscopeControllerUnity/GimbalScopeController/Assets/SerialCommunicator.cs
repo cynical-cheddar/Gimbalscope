@@ -256,7 +256,10 @@ public class SerialCommunicator : MonoBehaviour {
 
         Debug.Log(commandString);
 
-        
+        PerceptionTestManager ptm = FindObjectOfType<PerceptionTestManager>();
+
+        ptm.AddRequestStat();
+
 
 
     }

@@ -10,7 +10,7 @@ COM_data = []
 
 foundData = False
 
-filename = "L_tilt.txt"
+filename = "r_twist.txt"
 
 
 while 1:

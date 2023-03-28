@@ -87,7 +87,8 @@ BrushlessMotorController_c brushlessMotorController_right;
 #define STATE_FIRE_LOOP  8
 #define STATE_RELOAD_COMMAND  9
 #define STATE_RELOAD_LOOP  10
-
+#define STATE_RELOAD_COMMAND_NO_BEEP 40
+#define STATE_RELOAD_LOOP_NO_BEEP 41
 
 // States define the behaviour to reset the gimbal rotations to zero degrees
 #define STATE_ZERO_COMMAND 11
@@ -442,7 +443,7 @@ bool SerialDecoder2(){
           reloadDegreesPerSecond = GetMessageParameter(1, message);
           reloadPrecision = GetMessageParameter(2, message);
   
-          STATE = STATE_RELOAD_COMMAND;
+          STATE = STATE_RELOAD_COMMAND_NO_BEEP;
         }
         // move the right gimbal motor to a new base position
         else if(functionID == '1' && motorID == '2'){
@@ -452,7 +453,7 @@ bool SerialDecoder2(){
           reloadDegreesPerSecond = GetMessageParameter(1, message);
           reloadPrecision = GetMessageParameter(2, message);
   
-          STATE = STATE_RELOAD_COMMAND;
+          STATE = STATE_RELOAD_COMMAND_NO_BEEP;
         }
         
         // sinusoidal movement
@@ -737,7 +738,12 @@ void loop() {
     }
 
     else if(STATE == STATE_RELOAD_COMMAND){
-      motorController_right.ReceiveCommand(reloadTargetAngle_right, reloadDegreesPerSecond, reloadPrecision);
+      motorController_right.ReceiveCommand(reloadTargetAngle_right, reloadDegreesPerSecond*2, reloadPrecision);
+      motorController_left.ReceiveCommand(reloadTargetAngle_left, reloadDegreesPerSecond, reloadPrecision);
+      STATE = STATE_RELOAD_LOOP;
+    }
+    else if(STATE == STATE_RELOAD_COMMAND_NO_BEEP){
+      motorController_right.ReceiveCommand(reloadTargetAngle_right, reloadDegreesPerSecond*2, reloadPrecision);
       motorController_left.ReceiveCommand(reloadTargetAngle_left, reloadDegreesPerSecond, reloadPrecision);
       STATE = STATE_RELOAD_LOOP;
     }
@@ -748,6 +754,14 @@ void loop() {
         SERVO_STATE = SERVO_RECENTRE_COMMAND;
         // signal that the trigger is available again
         Serial3.println("##p");
+        STATE = STATE_LISTENING_MASTER;
+      }
+    }
+    else if(STATE == STATE_RELOAD_LOOP_NO_BEEP){
+      if(motorController_right.doneCommand && motorController_left.doneCommand){
+        // recentre servo
+        SERVO_STATE = SERVO_RECENTRE_COMMAND;
+        // signal that the trigger is available again
         STATE = STATE_LISTENING_MASTER;
       }
     }

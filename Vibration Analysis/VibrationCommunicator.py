@@ -2,7 +2,7 @@ import serial
 import time
 import msvcrt
 serialPort = serial.Serial(
-    port="COM8", baudrate=230400, bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE
+    port="COM11", baudrate=230400, bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE
 )
 serialString = ""  # Used to hold data coming over UART
 
@@ -10,7 +10,7 @@ COM_data = []
 
 foundData = False
 
-filename = "r_twist.txt"
+filename = "20.txt"
 
 
 while 1:

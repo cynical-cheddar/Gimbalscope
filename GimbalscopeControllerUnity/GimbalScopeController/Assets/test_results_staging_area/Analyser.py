@@ -35,6 +35,16 @@ def CalculateSetHitRate(set):
     hitrate = hits / i
     return hitrate
 
+def CalculateMeanGuesses(set):
+    meanGuesses = 0
+    i = 0
+    guesses = 0
+    for trial in set:
+        i += 1
+        guesses +=trial['requests']
+    meanGuesses = guesses / i
+    return meanGuesses
+
 def GetHitResultsFromCueType(cuetype, data):
     # loop through completed trials
     # if cueType == cuetype, add to array
@@ -107,7 +117,7 @@ with open('mega.json') as json_file:
     data = wrapped_data["completedTrials"]
     motorSaturations = []
     for trial in data:
-        if(trial['motorSaturation'] > 5):
+        if(trial['motorSaturation'] > 2):
             motorSaturations.append(trial['motorSaturation'])
 
     motorSaturations = list(dict.fromkeys(motorSaturations))
@@ -117,7 +127,7 @@ with open('mega.json') as json_file:
     for saturation in motorSaturations:
         trialset.append([])
     
-    print (trialset)
+   # print (trialset)
     
     # now sort trial data in to each of the motor saturation
     for trial in data:
@@ -128,6 +138,7 @@ with open('mega.json') as json_file:
     print("TRIAL SET")
     i = 0
     # iterate through all trials sorted by motor saturation
+    allTrialsCount = 0
     for set in trialset:
         print("=====")
         motorSaturation = motorSaturations[i]
@@ -138,18 +149,23 @@ with open('mega.json') as json_file:
         print("HITRATE")
         # print hitrate of trial set 
         print(CalculateSetHitRate(set))
-        
+        print("MEAN GUESSES")
+        print(CalculateMeanGuesses(set))
         # https://www.medcalc.org/calc/comparison_of_proportions.php
         print("=====")
         #print(set)
         i += 1
+        allTrialsCount += len(set)
 
+    print("TOTAL TRIALS")
+    print(allTrialsCount)
     # chi square over dataset
+    print("Expected correct guess chances recap:")
     successRates = GetSuccessRatesFromTrialSet(trial_set=trialset)
     print(successRates)
     meanRate = GetExpectedSuccessRate(trial_set=trialset)
 
-    
+    print("Overall mean")
     print(meanRate)
     val, p = chisquare(successRates, meanRate)
     print("CHI Square over dataset")

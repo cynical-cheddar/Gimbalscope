@@ -43,7 +43,7 @@ class MotorController_c {
     bool emergencyStop = false;
 
     float PI_Gain = 1.0f;
-    float PI_Gain_Slow = 0.2f;
+    float PI_Gain_Slow = 0.7f;
     
     bool stationary = false;
     int motorNumber = 0;

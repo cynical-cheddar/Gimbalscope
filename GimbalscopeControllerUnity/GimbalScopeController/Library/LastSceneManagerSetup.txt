@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Scenes/MinimumPerceptionTest.unity
+- path: Assets/Scenes/FullMinimumPerceptionTest.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
