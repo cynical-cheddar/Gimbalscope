@@ -5,6 +5,8 @@ using System;
 using System.Text;
 using UnityEngine.UI;
 public class SerialCommunicator : MonoBehaviour {
+    public bool simpleTest = true;
+    public bool twistTest = false;
     public string portName;
 
     int leftGimbalLastValue = 0;
@@ -65,6 +67,7 @@ public class SerialCommunicator : MonoBehaviour {
     public String defaultBrushlessInterpolationTime;
 
     SerialDuplexManager serialDuplexManager;
+
 
     void Start() {
         serialDuplexManager = FindObjectOfType<SerialDuplexManager>();
@@ -256,9 +259,13 @@ public class SerialCommunicator : MonoBehaviour {
 
         Debug.Log(commandString);
 
-        PerceptionTestManager ptm = FindObjectOfType<PerceptionTestManager>();
+        if (FindObjectOfType<PerceptionTestManager>() != null)
+        {
+            PerceptionTestManager ptm = FindObjectOfType<PerceptionTestManager>();
 
-        ptm.AddRequestStat();
+
+            ptm.AddRequestStat();
+        }
 
 
 
@@ -278,7 +285,17 @@ public class SerialCommunicator : MonoBehaviour {
         string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + angle.ToString() + "," + "01010"+",";
         Debug.Log(commandString);
         serialDuplexManager.SendMessageViaSerial(commandString);
+    }
+
+    public void btn_SetZeroHorizontal()
+    {
+        byte motorType = 6;
+        byte motorID = 0;
+        byte functionID = 0;
+
+        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + "0" + ",";
         Debug.Log(commandString);
+        serialDuplexManager.SendMessageViaSerial(commandString);
     }
     public void SetBrushlessPWM(byte motorID, float targetPWM)
     {
@@ -328,9 +345,9 @@ public class SerialCommunicator : MonoBehaviour {
     private void Update()
     {
         // read duplex manager queue
-        if(serialDuplexManager.incomingMessageBuffer.Count > 0)
+        if (serialDuplexManager.incomingMessageBuffer.Count > 0)
         {
-            string message = (string) serialDuplexManager.incomingMessageBuffer.Dequeue();
+            string message = (string)serialDuplexManager.incomingMessageBuffer.Dequeue();
             if (message.Length > 2)
             {
                 if (message[0] == '#')
@@ -345,62 +362,85 @@ public class SerialCommunicator : MonoBehaviour {
                         int x = int.Parse(orientations[0]);
                         int y = int.Parse(orientations[1]);
                         int z = int.Parse(orientations[2]);
-
-                        deviceRepresentation.rotation = Quaternion.Euler(0, -z, 0);
+                        // if 2d
+                        //deviceRepresentation.rotation = Quaternion.Euler(0, -z, 0);
+                        // if 3d
+                        deviceRepresentation.rotation = Quaternion.Euler(-x, -z, 0);
                     }
                     // requests
-                    else if(message[1] == '#')
+                    else if (message[1] == '#')
                     {
                         // cue
-                        if(message[2] == 'c')
+                        if (message[2] == 'c')
                         {
                             Debug.Log("cue requested");
-                            if (recentreServoOnFire.isOn)
+                            if (simpleTest)
                             {
-                                btn_recentre_servo_click();
-                                Invoke(nameof(btn_fire_command_Click), 0.3f);
+                                if (recentreServoOnFire.isOn)
+                                {
+                                    btn_recentre_servo_click();
+                                    Invoke(nameof(btn_fire_command_Click), 0.3f);
+                                }
+                                else
+                                {
+                                    btn_fire_command_Click();
+                                }
                             }
                             else
                             {
-                                btn_fire_command_Click();
+                                // ask the identification test manager to give a cue
+                                FindObjectOfType<IdTest>().FireRequest();
                             }
-                        }
-                        // play the trigger enabled sound effect
-                        if(message[2] == 'p')
-                        {
-                            PerceptionTestManager ptm = FindObjectOfType<PerceptionTestManager>();
-                            if(Time.time - lastTouchedGimbalTime > 5)
+                            // play the trigger enabled sound effect
+                            if (message[2] == 'p')
                             {
-                                ptm.PlayTriggerEnabledSound();
-                            }
-                            
-                        }
-                        // we've fired
-                        if (message[2] == 'f')
-                        {
-                            PerceptionTestManager ptm = FindObjectOfType<PerceptionTestManager>();
+                                Debug.Log("trigger0");
+                                if (FindObjectOfType<PerceptionTestManager>() != null)
+                                {
+                                    PerceptionTestManager ptm = FindObjectOfType<PerceptionTestManager>();
+                                    if (Time.time - lastTouchedGimbalTime > 5)
+                                    {
+                                        ptm.PlayTriggerEnabledSound();
+                                    }
+                                }
+                                else if(FindObjectOfType<IdTest>() != null)
+                                {
+                                    IdTest idTest = FindObjectOfType<IdTest>();
+                                    idTest.PlayTriggerEnabledSound();
+                                    Debug.Log("trigger2");
+                                }
 
-                            ptm.AddRequestStat();
-                        }
-                        // target select
-                        if(message[2] == 't')
-                        {
-                            Debug.Log("target selected");
-                        }
-                        if(message[2] == 'd')
-                        {
-                            Debug.Log("calibration successful");
+                            }
+                            // we've fired
+                            if (message[2] == 'f')
+                            {
+                                if (FindObjectOfType<PerceptionTestManager>() != null)
+                                {
+                                    PerceptionTestManager ptm = FindObjectOfType<PerceptionTestManager>();
+
+                                    ptm.AddRequestStat();
+                                }
+                            }
+                            // target select
+                            if (message[2] == 't')
+                            {
+                                Debug.Log("target selected");
+                            }
+                            if (message[2] == 'd')
+                            {
+                                Debug.Log("calibration successful");
+                            }
                         }
                     }
-                }
-                else
-                {
-                    Debug.Log(message);
+                    else
+                    {
+                        Debug.Log(message);
+                    }
                 }
             }
-        }
-        
 
+
+        }
     }
 
 
