@@ -68,6 +68,9 @@ public class SerialCommunicator : MonoBehaviour {
 
     SerialDuplexManager serialDuplexManager;
 
+    public float fireRate = 5f;
+    public float fireRate_cooldown = 5f;
+
 
     void Start() {
         serialDuplexManager = FindObjectOfType<SerialDuplexManager>();
@@ -220,44 +223,54 @@ public class SerialCommunicator : MonoBehaviour {
 
     public void btn_fire_command_Click()
     {
-        byte motorType = 0;
-        byte motorID = 0;
-        byte functionID = 0;
+        if (fireRate_cooldown < 0)
+        {
+            byte motorType = 0;
+            byte motorID = 0;
+            byte functionID = 0;
 
-        double fireTargetAngleLeft = Single.Parse(GetTextFromInputField(targetOrientationFieldLeft).text);
-        fireTargetAngleLeft = Math.Round(fireTargetAngleLeft, 4);
+            double fireTargetAngleLeft = Single.Parse(GetTextFromInputField(targetOrientationFieldLeft).text);
+            fireTargetAngleLeft = Math.Round(fireTargetAngleLeft, 4);
 
-        double fireTargetAngleRight = Single.Parse(GetTextFromInputField(targetOrientationFieldRight).text);
-        fireTargetAngleRight = Math.Round(fireTargetAngleRight, 4);
+            double fireTargetAngleRight = Single.Parse(GetTextFromInputField(targetOrientationFieldRight).text);
+            fireTargetAngleRight = Math.Round(fireTargetAngleRight, 4);
 
-        double fireDegreesPerSecond = Single.Parse(GetTextFromInputField(fireRotationSpeedField).text);
-        fireDegreesPerSecond = Math.Round(fireDegreesPerSecond, 4);
-
-
-        string firePrecisonString = GetTextFromInputField(firePrecisionField).text;
-
-
-        string reloadTargetAngleLeft = GetTextFromInputField(reloadTargetOrientationFieldLeft).text;
-        string reloadTargetAngleRight = GetTextFromInputField(reloadTargetOrientationFieldRight).text;
-
-        double reloadDegreesPerSecond = Single.Parse(GetTextFromInputField(reloadRotationalSpeedField).text);
-        reloadDegreesPerSecond = Math.Round(reloadDegreesPerSecond, 4);
+            double fireDegreesPerSecond = Single.Parse(GetTextFromInputField(fireRotationSpeedField).text);
+            fireDegreesPerSecond = Math.Round(fireDegreesPerSecond, 4);
 
 
-        string reloadPrecisionString = GetTextFromInputField(reloadPrecisionField).text;
+            string firePrecisonString = GetTextFromInputField(firePrecisionField).text;
+
+
+            string reloadTargetAngleLeft = GetTextFromInputField(reloadTargetOrientationFieldLeft).text;
+            string reloadTargetAngleRight = GetTextFromInputField(reloadTargetOrientationFieldRight).text;
+
+            double reloadDegreesPerSecond = Single.Parse(GetTextFromInputField(reloadRotationalSpeedField).text);
+            reloadDegreesPerSecond = Math.Round(reloadDegreesPerSecond, 4);
+
+
+            string reloadPrecisionString = GetTextFromInputField(reloadPrecisionField).text;
 
 
 
-        string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireTargetAngleLeft.ToString() + "," + fireTargetAngleRight.ToString() + "," + reloadTargetAngleLeft + "," + reloadTargetAngleRight + ",";
-        // motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireDegreesPerSecond.ToString() + "," + firePrecisonString + "," + reloadDegreesPerSecond.ToString() + "," + reloadPrecisionString +, ",";
+            string commandString = motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireTargetAngleLeft.ToString() + "," + fireTargetAngleRight.ToString() + "," + reloadTargetAngleLeft + "," + reloadTargetAngleRight + ",";
+            // motorType.ToString() + motorID.ToString() + functionID.ToString() + "," + fireDegreesPerSecond.ToString() + "," + firePrecisonString + "," + reloadDegreesPerSecond.ToString() + "," + reloadPrecisionString +, ",";
 
-        System.Diagnostics.Debug.WriteLine("--btn_fire_command_Click--");
+            System.Diagnostics.Debug.WriteLine("--btn_fire_command_Click--");
 
-        serialDuplexManager.SendMessageViaSerial(commandString);
+            serialDuplexManager.SendMessageViaSerial(commandString);
 
-        UpdateGimbalSliders();
+            UpdateGimbalSliders();
 
-        Debug.Log(commandString);
+            Debug.Log(commandString);
+            fireRate_cooldown = cooldown;
+
+
+        }
+        else
+        {
+            Debug.Log("Fire not on cooldown");
+        }
 
         if (FindObjectOfType<PerceptionTestManager>() != null)
         {
@@ -269,6 +282,18 @@ public class SerialCommunicator : MonoBehaviour {
 
 
 
+    }
+
+    public bool recordMovements = false;
+
+
+    public void StopRecordMovements()
+    {
+        recordMovements = false;
+    }
+    public void Btn_ToggleRecordMovements()
+    {
+        recordMovements = !recordMovements;
     }
 
     public void btn_servo_set_command()
@@ -365,7 +390,17 @@ public class SerialCommunicator : MonoBehaviour {
                         // if 2d
                         //deviceRepresentation.rotation = Quaternion.Euler(0, -z, 0);
                         // if 3d
+                        while(Math.Abs(x) > 30)
+                        {
+                            float x_f = (float) x * 0.7f;
+                            x = (int)x_f;
+                        }
                         deviceRepresentation.rotation = Quaternion.Euler(-x, -z, 0);
+
+                        if (recordMovements)
+                        {
+                            FindObjectOfType<IdTest>().ReceiveOrientationStreamPacket(new Vector3(-x, -z, 0));
+                        }
                     }
                     // requests
                     else if (message[1] == '#')
@@ -391,8 +426,9 @@ public class SerialCommunicator : MonoBehaviour {
                                 // ask the identification test manager to give a cue
                                 FindObjectOfType<IdTest>().FireRequest();
                             }
+                            }
                             // play the trigger enabled sound effect
-                            if (message[2] == 'p')
+                       if (message[2] == 'p')
                             {
                                 Debug.Log("trigger0");
                                 if (FindObjectOfType<PerceptionTestManager>() != null)
@@ -407,12 +443,13 @@ public class SerialCommunicator : MonoBehaviour {
                                 {
                                     IdTest idTest = FindObjectOfType<IdTest>();
                                     idTest.PlayTriggerEnabledSound();
+                                idTest.reloaded = true;
                                     Debug.Log("trigger2");
                                 }
 
                             }
                             // we've fired
-                            if (message[2] == 'f')
+                      if (message[2] == 'f')
                             {
                                 if (FindObjectOfType<PerceptionTestManager>() != null)
                                 {
@@ -425,10 +462,26 @@ public class SerialCommunicator : MonoBehaviour {
                             if (message[2] == 't')
                             {
                                 Debug.Log("target selected");
+                                if (FindObjectOfType<IdTest>() != null)
+                                {
+                                    IdTest idTest = FindObjectOfType<IdTest>();
+                                    idTest.CorrectCue();
+                                    idTest.PlayDebugSelectedSound();
+                                }
+
                             }
                             if (message[2] == 'd')
                             {
                                 Debug.Log("calibration successful");
+                                if (FindObjectOfType<IdTest>() != null)
+                                {
+                                    IdTest idTest = FindObjectOfType<IdTest>();
+
+                                    idTest.PlayCalibratedSound();
+
+                                // DISABLE THIS LATER
+                                recordMovements = true;
+                                }
                             }
                         }
                     }
@@ -441,15 +494,35 @@ public class SerialCommunicator : MonoBehaviour {
 
 
         }
-    }
+    
+
 
 
     public float updateInterval = 0.5f;
     float cooldown = 0.5f;
     float lastTouchedGimbalTime = 0;
+
+    public Text recordingText;
     private void FixedUpdate()
     {
+        if(recordingText != null)
+        {
+            if (recordMovements)
+            {
+                recordingText.text = "STOP";
+               
+            }
+            if (!recordMovements)
+            {
+                recordingText.text = "rec";
+            }
+
+        }
+        
         cooldown -= Time.fixedDeltaTime;
+        fireRate_cooldown -= Time.fixedDeltaTime;
+
+
         if (cooldown < 0)
         {
             // gimbal control

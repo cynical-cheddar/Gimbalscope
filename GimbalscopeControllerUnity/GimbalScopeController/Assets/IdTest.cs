@@ -11,11 +11,16 @@ public class IdTest : MonoBehaviour
     public AudioClip advanceSound;
     public AudioClip triggerEnabledSound;
 
+    public AudioClip debugSelectedSound;
+    public AudioClip calibratedSound;
+
 
     public Text cueTypeLabel;
     public Text motorSaturationText;
     public Text maxTrialsText;
     public Text currentTrialNumberText;
+
+    int lastTargetServoAngle = 0;
 
     public int targetServoAngle = 120;
 
@@ -23,6 +28,7 @@ public class IdTest : MonoBehaviour
 
     List<Vector3> currentOrientationKeyframes = new List<Vector3>();
 
+    List<Vector3> currentOrientationStream = new List<Vector3>();
 
 
     int currentRequestsCount = 0;
@@ -73,6 +79,8 @@ public class IdTest : MonoBehaviour
         [SerializeField]
         public Vector3[] orientationKeyframes;
         [SerializeField]
+        public Vector3[] orientationStream;
+        [SerializeField]
         public int identification_target_angle;
         [SerializeField]
         public bool correct;
@@ -105,6 +113,11 @@ public class IdTest : MonoBehaviour
     CompletedIdentificaionTrialsWrapper completedTrialsWrapper;
 
 
+    public void ReceiveOrientationStreamPacket(Vector3 rot_packet)
+    {
+        currentOrientationStream.Add(rot_packet);
+    }
+
     private void Start()
     {
         serialCommunicator = GetComponent<SerialCommunicator>();
@@ -132,6 +145,8 @@ public class IdTest : MonoBehaviour
         Vector3 forward = serialCommunicator.deviceRepresentation.transform.forward;
         //Vector3 angles = Quaternion.FromToRotation(forward, targetPos - device.position).eulerAngles;
         float angle = Vector3.SignedAngle(forward, targetPos -device.position, Vector3.up);
+        float angleRecord = Vector3.SignedAngle(forward, targetPos - device.position, Vector3.up);
+        
         float send_angle = angle;
         Debug.Log("ANGLES");
         Debug.Log(angle);
@@ -201,12 +216,13 @@ public class IdTest : MonoBehaviour
         else
         {
             // dont relaod gimbals
-            PopulateSettings(currentSettings, true);
+            PopulateSettings(currentSettings, false);
         }
         
         
 
         lastBackwards = backwardsFire;
+        lastTargetServoAngle = targetServoAngle;
     }
 
 
@@ -269,6 +285,7 @@ public class IdTest : MonoBehaviour
 
     public void CorrectCue()
     {
+        serialCommunicator.recordMovements = false;
         correctHits++;
         CompletedTrial completedTrial = new CompletedTrial();
         completedTrial.trial_number = currentTrialNumber;
@@ -278,13 +295,19 @@ public class IdTest : MonoBehaviour
         completedTrial.identification_target_angle = currentTrial.identificationOrientation;
         Vector3[] orientations = currentOrientationKeyframes.ToArray();
         completedTrial.orientationKeyframes = orientations;
+
+        Vector3[] orientation_stream = currentOrientationStream.ToArray();
+        completedTrial.orientationStream = orientation_stream;
+
         currentOrientationKeyframes.Clear();
+        currentOrientationStream.Clear();
         completedTrials.Add(completedTrial);
         AdvanceCue();
         Debug.Log("right");
     }
     public void IncorrectCue()
     {
+        serialCommunicator.recordMovements = false;
         if (currentTrialNumber <= trialQueue.Count)
         {
             incorrectHits++;
@@ -296,7 +319,11 @@ public class IdTest : MonoBehaviour
             completedTrial.requestsCount = currentRequestsCount;
             Vector3[] orientations = currentOrientationKeyframes.ToArray();
             completedTrial.orientationKeyframes = orientations;
+
+            Vector3[] orientation_stream = currentOrientationStream.ToArray();
+            completedTrial.orientationStream = orientation_stream;
             currentOrientationKeyframes.Clear();
+            currentOrientationStream.Clear();
             completedTrials.Add(completedTrial);
             AdvanceCue();
             Debug.Log("wrong");
@@ -379,6 +406,7 @@ public class IdTest : MonoBehaviour
     }
     void SerialFire()
     {
+        reloaded = false;
         PlayFireSound();
         serialCommunicator.btn_fire_command_Click();
     }
@@ -442,30 +470,50 @@ public class IdTest : MonoBehaviour
         serialCommunicator.reloadPrecisionField.text = cueSettings.reloadPrecision.ToString();
 
         serialCommunicator.brushlessInterpolationTimeField.text = "1";
-        
-        
 
-        
 
-        
+
+
+
+        reloaded = false;
 
 
 
         PlayAdvancingToNextTrialSound();
-        Invoke(nameof(SerialCommunicatorSetSettings), 0.1f);
+        Invoke(nameof(SerialCommunicatorSetSettings), 0.2f);
 
         if (reloadGimbals)
         {
-            Invoke(nameof(SerialCommunicatorSetGimbalsToReload), 2f);
-            Invoke(nameof(SerialFire), 6f);
-            Invoke(nameof(PlayTriggerEnabledSound), 8f);
+            Invoke(nameof(SerialCommunicatorSetGimbalsToReload), 0.8f);
+            // Invoke(nameof(SerialFire), 2f);
+            StartCoroutine(nameof(WaitForGoSerialFire));
+            //  Invoke(nameof(PlayTriggerEnabledSound), 8f);
         }
         else
         {
-            Invoke(nameof(SerialFire), 2f);
-            Invoke(nameof(PlayTriggerEnabledSound), 5f);
+            Invoke(nameof(SerialCommunicatorSetGimbalsToReload), 0.8f);
+            // Invoke(nameof(SerialFire), 2f);
+            StartCoroutine(nameof(WaitForGoSerialFire));
+         //   Invoke(nameof(PlayTriggerEnabledSound), 5f);
         }
         
+    }
+
+    IEnumerator WaitForGoSerialFire()
+    {
+        yield return new WaitForSeconds(1);
+        float elapsedTime = 0f;
+        while (true)
+        {
+            elapsedTime += Time.deltaTime;
+            if (reloaded || elapsedTime > 4)
+            {
+                SerialFire();
+                break;
+            }
+            yield return new WaitForEndOfFrame();
+        }
+        yield return null;
     }
 
     public void PlayAdvancingToNextTrialSound()
@@ -474,17 +522,36 @@ public class IdTest : MonoBehaviour
         GetComponent<AudioSource>().Play();
         Debug.Log("play sound");
     }
+
+
+
+
+
+    public void PlayDebugSelectedSound()
+    {
+        GetComponent<AudioSource>().clip = (debugSelectedSound);
+        GetComponent<AudioSource>().Play();
+    }
+
+    public void PlayCalibratedSound()
+    {
+        GetComponent<AudioSource>().clip = (calibratedSound);
+        GetComponent<AudioSource>().Play();
+    }
     public void PlayFireSound()
     {
         GetComponent<AudioSource>().clip = (fireSound);
         GetComponent<AudioSource>().Play();
         Debug.Log("play sound");
     }
+
+    public bool reloaded = false;
     public void PlayTriggerEnabledSound()
     {
         GetComponent<AudioSource>().clip = (triggerEnabledSound);
         GetComponent<AudioSource>().Play();
         Debug.Log("trigger1");
+        reloaded = true;
     }
     public string folder = "test_results_dir";
     public string filename = "";

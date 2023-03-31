@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Scenes/TargetIdentificationTest.unity
+- path: Assets/Scenes/IdentificationPathTracer.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
