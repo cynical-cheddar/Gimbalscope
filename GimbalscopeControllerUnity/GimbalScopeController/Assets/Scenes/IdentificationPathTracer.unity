@@ -1953,11 +1953,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78430214aafa87841a8bb874797398aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  drawMode: 0
+  drawMode: 1
   filenames:
   - allTrialsTest
   - allTrialsTest2
   - allTrialsTest3
+  - allTrialsTest4
   colors:
   - {r: 1, g: 0, b: 0, a: 0}
   - {r: 0.02666688, g: 1, b: 0, a: 0}

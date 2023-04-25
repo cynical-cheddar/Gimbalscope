@@ -31,6 +31,9 @@ public class PathDrawer : MonoBehaviour
 
     public Transform masterTransform;
 
+    float totalTime = 0;
+    float avgCues = 0;
+
     [Serializable]
     public struct CompletedIdentificaionTrialsWrapper
     {
@@ -88,11 +91,15 @@ public class PathDrawer : MonoBehaviour
         bool render = false;
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
+            totalTime = 0;
+            Debug.Log("==== ");
             render = true;
             rotation_list_index -= 1;
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
+            totalTime = 0;
+            Debug.Log("==== ");
             render = true;
             rotation_list_index += 1;
         }
@@ -117,12 +124,12 @@ public class PathDrawer : MonoBehaviour
     }
     void RenderAngle(int angle_display)
     {
+        avgCues = 0;
         FindObjectOfType<Text>().text = angle_display.ToString();
         foreach (Transform child in masterTransform)
         {
             Destroy(child.gameObject);
         }
-        // do all 45 degree ones
         SetRendererAllTargets();
         SetRendererSpecificTarget(angle_display);
 
@@ -136,6 +143,9 @@ public class PathDrawer : MonoBehaviour
 
             i++;
         }
+        avgCues = avgCues / filenames.Count;
+        Debug.Log("avg cues" + (avgCues).ToString());
+        Debug.Log("avg time" + (totalTime/filenames.Count).ToString());
         
     }
 
@@ -163,12 +173,12 @@ public class PathDrawer : MonoBehaviour
             Debug.Log("index > completedTrials.Length - 1 ");
         }
 
-        Debug.Log(index);
+       // Debug.Log(index);
         Vector3[] orientationStreamFreames = completedTrials[index].orientationStream;
 
         for (int i = 0; i < orientationStreamFreames.Length; i++)
         {
-            if(Math.Abs(orientationStreamFreames[i].x) > 15)
+            if(Math.Abs(orientationStreamFreames[i].x) > 25)
             {
                 orientationStreamFreames[i].x = orientationStreamFreames[i].x / 10;
             }
@@ -183,11 +193,13 @@ public class PathDrawer : MonoBehaviour
         Quaternion lastRotation = Quaternion.Euler(Vector3.forward);
         Vector3 lastPos = Vector3.zero;
         int c_i = 0;
+        float timeTaken = 0;
         foreach (Vector3 v in orientationStreamFreames)
         {
+            timeTaken += 1.0f / 2.0f;
             Vector3 orientation = v;
             orientation.x += UnityEngine.Random.Range(-2, 2);
-            Debug.Log(orientation);
+            //Debug.Log(orientation);
             Quaternion nextKeyframe = Quaternion.Euler(orientation);
             
             // interpolate between start Quaternion and end Quaternion with timestep. add drawpoint
@@ -209,8 +221,6 @@ public class PathDrawer : MonoBehaviour
 
 
             lastRotation = penHead.rotation;
-
-
         }
 
         lineRenderer.positionCount = drawPoints.Count;
@@ -228,6 +238,9 @@ public class PathDrawer : MonoBehaviour
         }
         endMarkerInstance.transform.parent = masterTransform;
         lineInstance.transform.parent = masterTransform;
+        totalTime += timeTaken;
+
+
     }
 
 
@@ -273,6 +286,7 @@ public class PathDrawer : MonoBehaviour
         int c_i = 0;
         foreach (Vector3 v in orientationKeyframes)
         {
+            avgCues += 1;
             Vector3 orientation = v;
             orientation.x += UnityEngine.Random.Range(-5, 5);
             Debug.Log(orientation);

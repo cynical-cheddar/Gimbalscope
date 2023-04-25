@@ -86,22 +86,23 @@ def DisplayTorqueGraph(filename, title, timeMultiplier, uppercut, lowercut, neat
         time_values.append(i * timeMultiplier)
         i += 1
     
-    plt.plot( time_values, xs)
-    plt.plot( time_values, ys)
-    plt.plot( time_values, zs)
+    plt.plot( time_values, xs, color = 'red', label = 'x')
+    plt.plot( time_values, ys, color = 'green', label = 'y')
+    plt.plot( time_values, zs, color = 'blue', label = 'z')
     plt.title(title)
+    plt.legend()
     plt.xlabel("Time [ms]")
     plt.ylabel("Rotational Velocity [rads / s]")
 
     plt.show()
 
 
-DisplayTorqueGraph("l_tilt.txt", "Left Tilt About Forward Axis", 2, 1000, 250, 400, 600, 2.4*1.3, 'z', False)
-DisplayTorqueGraph("r_tilt.txt", "Right Tilt About Forward Axis", 2, 1000, 250, 400, 600, 2.4*1.3, 'z', False)
+DisplayTorqueGraph("l_tilt.txt", "Left Tilt About Roll Axis", 2, 1000, 250, 400, 600, 2.4*1.3, 'z', False)
+DisplayTorqueGraph("r_tilt.txt", "Right Tilt About Roll Axis", 2, 1000, 250, 400, 600, 2.4*1.3, 'z', False)
 
-DisplayTorqueGraph("f_tilt.txt", "Forward Tilt About Lateral Axis", 2, 1000, 250, 300, 700, 1.2*1.3, 'y', False)
-DisplayTorqueGraph("b_tilt.txt", "Backward Tilt About Lateral Axis", 2, 1000, 250, 250, 700, 2, 'y', False)
+DisplayTorqueGraph("f_tilt.txt", "Forward Tilt About Pitch Axis", 2, 1000, 250, 300, 700, 1.2*1.3, 'y', False)
+DisplayTorqueGraph("b_tilt.txt", "Backward Tilt About Pitch Axis", 2, 1000, 250, 250, 700, 2, 'y', False)
 
-DisplayTorqueGraph("l_twist.txt", "Left Twist About Vertical Axis", 1.8, 1400, 500, 400, 700, 2.4*1.3, 'x' , False)
-DisplayTorqueGraph("r_twist.txt", "Right Twist About Vertical Axis", 2.5, 1200, 600, 500, 800, 1.6*1.3, 'x', True)
+DisplayTorqueGraph("l_twist.txt", "Left Twist About Yaw Axis", 1.8, 1400, 500, 400, 700, 2.4*1.3, 'x' , False)
+DisplayTorqueGraph("r_twist.txt", "Right Twist About Yaw Axis", 2.5, 1200, 600, 500, 800, 1.6*1.3, 'x', True)
 

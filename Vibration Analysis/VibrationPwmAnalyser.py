@@ -276,7 +276,7 @@ plt.fill_between(saturations, min_absolute_vibrations_z, max_absolute_vibrations
 
 plt.ylabel('Acceleration in axis [m/s^2]')
 plt.xlabel('Brushless Motor Saturation [%]')
-plt.title("Acceleration Distribution as a Measure of Vibration Sampled Discretely over Full Motor Saturation Range")
+plt.title("Vibration Inter-Quartile Distribution Sampled Discretely over Full Motor Saturation Range")
 plt.legend()
 plt.show()
 
