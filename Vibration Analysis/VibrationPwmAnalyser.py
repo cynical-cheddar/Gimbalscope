@@ -291,25 +291,3 @@ plt.show()
 
 
 input()
-
-t_values = [float(x[1]) for x in z_and_time]
-
-t_values = np.array(t_values)
-t_diffs = np.diff(t_values)
-mean_diff = np.mean(t_diffs)/1000
-sample_rate = 1/mean_diff
-print(sample_rate)
-# find avg difference in milliseconds between samples
-
-# plot in time domain
-# test plot
-t_stamps = [x/1000 for x in t_values]
-plt.plot(t_stamps, y_values , linewidth=0.08, color = 'green', label="y")
-plt.plot(t_stamps , x_values , linewidth=0.05, color = 'red' , label="x")
-plt.plot(t_stamps, z_values , linewidth=0.05, color = 'blue', label="z", alpha = 0.8)
-plt.legend()
-plt.ylabel('Acceleration in axis [m/s^2]')
-plt.xlabel('Time [s])')
-plt.title("Acceleration as a Measure of Vibration Experienced over Full Motor Saturation Range")
-
-plt.show()

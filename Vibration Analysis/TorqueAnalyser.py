@@ -7,21 +7,10 @@ import matplotlib.pyplot as plt
 import math
 filename = "l_tilt.txt"
 
-def NeatenValues(list, lowerBound, upperBound, multiplier):
-    newList = []
-    i = 0
-    for element in list:
-        if(i > lowerBound and i < upperBound):
-            
-            newList.append(element*multiplier)
-            #  print(multiplier)
-        else:
-            newList.append(element)
-        i += 1
-    return newList
 
 
-def DisplayTorqueGraph(filename, title, timeMultiplier, uppercut, lowercut, neatenLower, neatenUpper, neatenMultiplier, neatenAxis, neuterZ):
+
+def DisplayTorqueGraph(filename, title, timeMultiplier, uppercut, lowercut):
     file_contents = []
 
 
@@ -66,19 +55,9 @@ def DisplayTorqueGraph(filename, title, timeMultiplier, uppercut, lowercut, neat
     zs = zs[lowercut:]
 
 
-    if(neatenAxis == 'x'):
-        xs = NeatenValues(xs, neatenLower, neatenUpper, neatenMultiplier)
-    if(neatenAxis == 'y'):
-        print(np.sum(ys))
-        print(neatenMultiplier)
-        ys = NeatenValues(ys, neatenLower, neatenUpper, neatenMultiplier)
-        print(np.sum(ys))
-    if(neatenAxis == 'z'):
-        zs = NeatenValues(zs, neatenLower, neatenUpper, neatenMultiplier)
 
-    if(neuterZ):
-        print("neuter")
-        zs = [z * (0.4 + np.random.uniform(-0.1, 0.1)) for z in zs]
+
+
 
     time_values = []
     i = 0
@@ -97,12 +76,12 @@ def DisplayTorqueGraph(filename, title, timeMultiplier, uppercut, lowercut, neat
     plt.show()
 
 
-DisplayTorqueGraph("l_tilt.txt", "Left Tilt About Roll Axis", 2, 1000, 250, 400, 600, 2.4*1.3, 'z', False)
-DisplayTorqueGraph("r_tilt.txt", "Right Tilt About Roll Axis", 2, 1000, 250, 400, 600, 2.4*1.3, 'z', False)
+DisplayTorqueGraph("l_tilt.txt", "Left Tilt About Roll Axis", 2, 1000, 250)
+DisplayTorqueGraph("r_tilt.txt", "Right Tilt About Roll Axis", 2, 1000, 250)
 
-DisplayTorqueGraph("f_tilt.txt", "Forward Tilt About Pitch Axis", 2, 1000, 250, 300, 700, 1.2*1.3, 'y', False)
-DisplayTorqueGraph("b_tilt.txt", "Backward Tilt About Pitch Axis", 2, 1000, 250, 250, 700, 2, 'y', False)
+DisplayTorqueGraph("f_tilt.txt", "Forward Tilt About Pitch Axis", 2, 1000, 250)
+DisplayTorqueGraph("b_tilt.txt", "Backward Tilt About Pitch Axis", 2, 1000, 250)
 
-DisplayTorqueGraph("l_twist.txt", "Left Twist About Yaw Axis", 1.8, 1400, 500, 400, 700, 2.4*1.3, 'x' , False)
-DisplayTorqueGraph("r_twist.txt", "Right Twist About Yaw Axis", 2.5, 1200, 600, 500, 800, 1.6*1.3, 'x', True)
+DisplayTorqueGraph("l_twist.txt", "Left Twist About Yaw Axis", 1.8, 1400, 500)
+DisplayTorqueGraph("r_twist.txt", "Right Twist About Yaw Axis", 2.5, 1200, 600)
 

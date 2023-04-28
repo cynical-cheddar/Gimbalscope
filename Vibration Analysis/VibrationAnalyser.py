@@ -81,52 +81,8 @@ fourier_ys = 2*np.abs(rfft(y_values))/N
 fourier_zs = 2*np.abs(rfft(z_values))/N
 frequencies = rfftfreq(N, d=1/sample_rate)
 i = 0
-for f in frequencies:
 
-    if(f > 75 and f < 80):
-        j = (80 - f)/3.14
-        if(math.sin(j) > 0):
-            rand = np.random.uniform(-0.2, math.sin(j)/1.7)/2
-            if(rand < 0):
-                rand = 0 + np.random.uniform(0, 0.02)
 
-            fourier_xs[i] +=rand
-            rand = np.random.uniform(-0.2, math.sin(j)/1.1)/2
-
-            if(rand < 0):
-                rand = 0 + np.random.uniform(0, 0.02)
-            
-            fourier_ys[i] += rand
-            rand = np.random.uniform(-0.2, math.sin(j)/1.7)/2
-            if(rand < 0):
-                rand = 0 + np.random.uniform(0, 0.02)
-        
-            fourier_zs[i] += rand
-
-    if(f > 30 and f < 50):
-        j = (50 - f)/3.14
-        if(math.sin(j) > 0):
-            rand = np.random.uniform(-0.2, math.sin(j)/1.7)
-            if(rand < 0):
-                rand = 0 + np.random.uniform(0, 0.02)
-
-            fourier_xs[i] +=rand
-            rand = np.random.uniform(-0.2, math.sin(j)/1.1)
-
-            if(rand < 0):
-                rand = 0 + np.random.uniform(0, 0.02)
-            
-            fourier_ys[i] += rand
-            rand = np.random.uniform(-0.2, math.sin(j)/1.7)
-            if(rand < 0):
-                rand = 0 + np.random.uniform(0, 0.02)
-        
-            fourier_zs[i] += rand
-    i += 1
-
-fourier_xs = [x * 0.7 for x in fourier_xs]
-fourier_ys = [x * 0.7 for x in fourier_ys]
-fourier_zs = [x * 0.7 for x in fourier_zs]
 plt.plot(rfftfreq(N, d=1/sample_rate),fourier_xs, linewidth=0.1, color = 'red', label = 'x')
 plt.plot(rfftfreq(N, d=1/sample_rate),fourier_ys, linewidth=0.1, color = 'green', label = 'y')
 plt.plot(rfftfreq(N, d=1/sample_rate),fourier_zs, linewidth=0.1, color = 'blue', label = 'z')
